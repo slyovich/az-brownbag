@@ -351,3 +351,10 @@ MigrationBackup/
 
 # Draw IO diagrams
 **.drawio*
+
+# Terraform
+.terraform/
+.terraform.*
+terraform.*
+*.tfvars
+*.binary
