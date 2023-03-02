@@ -18,6 +18,19 @@ First of all, we need to initiatize the terraform environment. This step is exec
     
     terraform init
 
+In case you want to store your terraform state on an Azure storage account to avoid keeping the state file locally, you can use the following command.
+For that, you must first create a service principal as explained [in terraform documentation](https://registry.terraform.io/providers/hashicorp/azuread/latest/docs/guides/service_principal_client_secret) and obtain the client id and client secret, used for authentication.
+
+    terraform init `
+        -backend-config=storage_account_name="<YOUR-STORAGE-ACCOUNT-NAME>" `
+        -backend-config=container_name="<YOUR-CONTAINER-NAME>" `
+        -backend-config=key=backend.tfstate `
+        -backend-config=resource_group_name="<RESOURCE-GROUP-NAME-WHERE-STORAGE-EXISTS>" `
+        -backend-config=subscription_id="<SUBSCRIPTION-ID-WHERE-STORAGE-EXISTS>" `
+        -backend-config=tenant_id="<TENANT-ID-WHERE-STORAGE-EXISTS>" `
+        -backend-config=client_id="<APP-REGISTRATION-ID>" `
+        -backend-config=client_secret="<APP-REGISTRATION-SECRET>"
+
 ### Validate your script
 Before executing any action with your code, validate that your script is correct using the following command.
 

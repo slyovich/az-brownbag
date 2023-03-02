@@ -38,6 +38,7 @@ variable "subnets" {
       address_space                                   = list(string)
       private_endpoint_network_policies_enabled       = bool
       private_link_service_network_policies_enabled   = bool
+      service_endpoints                               = list(string)
   }))
 }
 
@@ -45,4 +46,20 @@ variable "dns" {
   type = map(object({
     name     = string
   }))
+}
+
+variable "workspace-name" {
+    type = string
+}
+
+variable "app-insight-name" {
+    type = string
+}
+
+variable "key-vault" {
+  type = object({
+    name        = string
+    subnet-key  = string
+    dns-key     = string
+  })
 }

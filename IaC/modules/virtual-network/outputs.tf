@@ -3,5 +3,9 @@ output "vnet_id" {
 }
 
 output "subnet" {
-    value = zipmap( values(azurerm_subnet.subnets)[*].name, values(azurerm_subnet.subnets)[*].id )
+    value = azurerm_subnet.subnets
+}
+
+output "dns-zones" {
+    value = azurerm_private_dns_zone.dns-zones
 }

@@ -41,6 +41,7 @@ variable "subnets" {
       address_space                                   = list(string)
       private_endpoint_network_policies_enabled       = bool
       private_link_service_network_policies_enabled   = bool
+      service_endpoints                               = list(string)
   }))
 }
 

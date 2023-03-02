@@ -63,5 +63,7 @@ More information on how to deploy this infrastructure is available [here](IaC/RE
 - Terraform pipeline
 - Use KeyVault secrets to create ACA secrets
     End of march, public preview (https://github.com/microsoft/azure-container-apps/issues/608)
+- Set ACA managed identity
+- Grant access to Key Vault to ACA managed identity
 
 ## Deploy the application

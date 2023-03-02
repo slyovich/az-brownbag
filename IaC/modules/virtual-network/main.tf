@@ -23,7 +23,7 @@ resource "azurerm_virtual_network" "vnet" {
   resource_group_name = var.resourceGroupName
   address_space       = var.vnet.address_space
 
-  tags = var.tags
+  tags                = var.tags
 }
 
 resource "azurerm_network_security_group" "nsg" {
@@ -32,6 +32,7 @@ resource "azurerm_network_security_group" "nsg" {
   name                  = each.value.name
   location              = var.location
   resource_group_name   = var.resourceGroupName
+  
   tags                  = var.tags
 }
 
@@ -68,6 +69,8 @@ resource "azurerm_subnet" "subnets" {
 
   private_endpoint_network_policies_enabled       = each.value.private_endpoint_network_policies_enabled
   private_link_service_network_policies_enabled   = each.value.private_link_service_network_policies_enabled
+
+  service_endpoints                               = each.value.service_endpoints
 
   depends_on = [
     azurerm_virtual_network.vnet

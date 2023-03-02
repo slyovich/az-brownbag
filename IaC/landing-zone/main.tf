@@ -46,3 +46,37 @@ module "vnet" {
     azurerm_resource_group.rg
   ]
 }
+
+module "monitoring" {
+  source = "../modules/monitoring"
+
+  tags                = local.tags
+  location            = var.location
+  resourceGroupName   = var.resourceGroupName
+  workspace-name      = var.workspace-name
+  app-insight-name    = var.app-insight-name
+
+  depends_on = [
+    azurerm_resource_group.rg
+  ]
+}
+
+module "keyvault" {
+  source = "../modules/key-vault"
+
+  tags                                    = local.tags
+  location                                = var.location
+  resourceGroupName                       = var.resourceGroupName
+  keyvault-name                           = var.key-vault.name
+  subnet-id                               = module.vnet.subnet[var.key-vault.subnet-key].id
+  dns-id                                  = module.vnet.dns-zones[var.key-vault.dns-key].id
+  dns-name                                = module.vnet.dns-zones[var.key-vault.dns-key].name
+  workspace-id                            = module.monitoring.workspace_id
+  tenant-id                               = data.azurerm_client_config.current.tenant_id
+  key-vault-default-officer-principal-id  = data.azurerm_client_config.current.object_id
+
+  depends_on = [
+    module.vnet,
+    module.monitoring
+  ]
+}
