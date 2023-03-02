@@ -32,7 +32,7 @@ resource "azurerm_resource_group" "rg" {
 }
 
 module "vnet" {
-  source = "./modules/virtual-network"
+  source = "../modules/virtual-network"
 
   tags                = local.tags
   location            = var.location
