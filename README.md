@@ -49,6 +49,7 @@ The following AZ CLI script helps you to create this storage in your subscriptio
 - Front Door (+ custom domain)
 - ACA
 - GitHub Runner
+More information on how to deploy this infrastructure is available [here](IaC/README.md).
 
 ## Register your AAD applications 
 - App registrations (+ redirect URIs from local and distant)
