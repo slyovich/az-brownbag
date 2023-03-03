@@ -69,3 +69,10 @@ variable "container-app-environment" {
     private-link-subnet-key = string
   })
 }
+
+variable "front-door" {
+  type = object({
+    name               = string
+    custom-domain-name = string
+  })
+}

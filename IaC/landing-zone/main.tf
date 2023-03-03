@@ -106,3 +106,13 @@ module "container-app-environment" {
     module.monitoring
   ]
 }
+
+module "front-door" {
+  source = "../modules/front-door"
+
+  tags                           = local.tags
+  location                       = var.location
+  resourceGroupName              = azurerm_resource_group.rg.name
+  front-door-name                = var.front-door.name
+  custom-domain-name             = var.front-door.custom-domain-name
+}

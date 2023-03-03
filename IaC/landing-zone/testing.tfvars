@@ -77,3 +77,8 @@ container-app-environment = {
     subnet-key              = "app"
     private-link-subnet-key = "privateEndpoint"
 }
+
+front-door = {
+    name               = "fd-demo-brownbag-01"
+    custom-domain-name = null
+}
