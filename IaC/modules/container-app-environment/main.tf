@@ -55,3 +55,32 @@ resource "azurerm_private_dns_a_record" "containerapp_record" {
   ttl                 = 300
   records             = ["${jsondecode(azapi_resource.containerapp_environment.output).properties.staticIp}"]
 }
+
+data "azurerm_lb" "internal" {
+  name = "kubernetes-internal"
+  resource_group_name = "MC_${split(".", jsondecode(azapi_resource.containerapp_environment.output).properties.defaultDomain)[0]}-rg_${split(".", jsondecode(azapi_resource.containerapp_environment.output).properties.defaultDomain)[0]}_${var.location}"
+
+  depends_on = [
+    azapi_resource.containerapp_environment
+  ]
+}
+
+resource "azurerm_private_link_service" "container_app_environment" {
+  name                                        = "pl${replace(var.environment-name, "-", "")}"
+  resource_group_name                         = var.resourceGroupName
+  location                                    = var.location
+  tags                                        = var.tags
+
+  load_balancer_frontend_ip_configuration_ids = [data.azurerm_lb.internal.frontend_ip_configuration.0.id]
+
+  nat_ip_configuration {
+    name                       = "snet-provider-default-1"
+    subnet_id                  = var.private-link-subnet-id
+    primary                    = true
+    private_ip_address_version = "IPv4"
+  }
+
+  depends_on = [
+    data.azurerm_lb.internal
+  ]
+}

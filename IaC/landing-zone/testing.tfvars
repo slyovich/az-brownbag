@@ -73,6 +73,7 @@ key-vault = {
 }
 
 container-app-environment = {
-    name       = "appenv-demo-brownbag-01"
-    subnet-key = "app"
+    name                    = "appenv-demo-brownbag-01"
+    subnet-key              = "app"
+    private-link-subnet-key = "privateEndpoint"
 }

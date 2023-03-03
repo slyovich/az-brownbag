@@ -64,7 +64,8 @@ variable "key-vault" {
 
 variable "container-app-environment" {
   type = object({
-    name        = string
-    subnet-key  = string
+    name                    = string
+    subnet-key              = string
+    private-link-subnet-key = string
   })
 }

@@ -99,6 +99,7 @@ module "container-app-environment" {
   log-analytics-workspace-key    = module.monitoring.workspace_key
   vnet-id                        = module.vnet.vnet_id
   subnet-id                      = module.vnet.subnet[var.container-app-environment.subnet-key].id
+  private-link-subnet-id         = module.vnet.subnet[var.container-app-environment.private-link-subnet-key].id
 
   depends_on = [
     module.vnet,

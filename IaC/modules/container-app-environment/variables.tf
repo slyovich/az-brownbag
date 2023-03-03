@@ -37,3 +37,7 @@ variable "vnet-id" {
 variable "subnet-id" {
   type = string
 }
+
+variable "private-link-subnet-id" {
+  type = string
+}
