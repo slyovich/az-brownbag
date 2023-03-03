@@ -43,9 +43,7 @@ variable "subnets" {
 }
 
 variable "dns" {
-  type = map(object({
-    name     = string
-  }))
+  type = map(string)
 }
 
 variable "workspace-name" {
@@ -61,5 +59,12 @@ variable "key-vault" {
     name        = string
     subnet-key  = string
     dns-key     = string
+  })
+}
+
+variable "container-app-environment" {
+  type = object({
+    name        = string
+    subnet-key  = string
   })
 }

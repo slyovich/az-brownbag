@@ -92,7 +92,7 @@ resource "azurerm_subnet_network_security_group_association" "subnet_nsg_associa
 resource "azurerm_private_dns_zone" "dns-zones" {
   for_each                  = var.dns
 
-  name                      = each.value.name
+  name                      = each.value
   resource_group_name       = var.resourceGroupName
 
   tags                      = var.tags
@@ -103,7 +103,7 @@ resource "azurerm_private_dns_zone_virtual_network_link" "dns-zones-links" {
   
   name                      = each.key
   resource_group_name       = var.resourceGroupName
-  private_dns_zone_name     = each.value.name
+  private_dns_zone_name     = each.value
   virtual_network_id        = azurerm_virtual_network.vnet.id
 
   depends_on = [

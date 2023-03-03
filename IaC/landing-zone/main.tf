@@ -4,6 +4,9 @@ terraform {
       source  = "hashicorp/azurerm"
       version = "~>3.0"
     }
+    azapi = {
+      source  = "azure/azapi"
+    }
   }
 }
 
@@ -11,6 +14,8 @@ provider "azurerm" {
   storage_use_azuread = true    # Allow access to storage with shared_access_key disabled
   features {}
 }
+
+provider "azapi" { }
 
 # Use this data source to access the configuration of the AzureRM provider
 # https://registry.terraform.io/providers/hashicorp/azurerm/1.38.0/docs/data-sources/client_config
@@ -74,6 +79,26 @@ module "keyvault" {
   workspace-id                            = module.monitoring.workspace_id
   tenant-id                               = data.azurerm_client_config.current.tenant_id
   key-vault-default-officer-principal-id  = data.azurerm_client_config.current.object_id
+
+  depends_on = [
+    module.vnet,
+    module.monitoring
+  ]
+}
+
+module "container-app-environment" {
+  source = "../modules/container-app-environment"
+
+  tags                           = local.tags
+  location                       = var.location
+  resourceGroupId                = azurerm_resource_group.rg.id
+  resourceGroupName              = azurerm_resource_group.rg.name
+  environment-name               = var.container-app-environment.name
+  app-insights-connection-string = module.monitoring.app_insights_connection_string
+  log-analytics-workspace-id     = module.monitoring.workspace_workspace_id
+  log-analytics-workspace-key    = module.monitoring.workspace_key
+  vnet-id                        = module.vnet.vnet_id
+  subnet-id                      = module.vnet.subnet[var.container-app-environment.subnet-key].id
 
   depends_on = [
     module.vnet,

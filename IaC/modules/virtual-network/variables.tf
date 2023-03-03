@@ -46,7 +46,5 @@ variable "subnets" {
 }
 
 variable "dns" {
-  type = map(object({
-    name     = string
-  }))
+  type = map(string)
 }

@@ -46,8 +46,8 @@ The following AZ CLI script helps you to create this storage in your subscriptio
 - VNet
 - Log Analytics Workspace + App Insight
 - Key Vault + private endpoint
-- Front Door (+ custom domain)
 - ACA
+- Front Door (+ custom domain)
 - GitHub Runner
 More information on how to deploy this infrastructure is available [here](IaC/README.md).
 
