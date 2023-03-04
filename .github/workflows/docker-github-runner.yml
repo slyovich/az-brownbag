@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ./docker-github-runner.
+        working-directory: ./docker-github-runner
 
     steps:
       # checkout the repo
