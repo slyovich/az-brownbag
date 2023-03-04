@@ -1,0 +1,4 @@
+name: Landing_Zone_Workflow
+
+on:
+  workflow_dispatch:

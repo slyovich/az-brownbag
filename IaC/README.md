@@ -61,4 +61,6 @@ Execute the following command to apply your changes in your Azure environment.
     terraform apply "tfuat_plan.binary"
 
 ## Automate with GitHub Actions
-GitHub Action for tfsec (https://aquasecurity.github.io/tfsec/v1.28.1/guides/github-actions/github-action/)
+GitHub Action for tfsec (https://aquasecurity.github.io/tfsec/v1.28.1/guides/github-actions/github-action/).
+
+Automate terraform with GitHub Actions (https://github.com/marketplace/actions/terraform-plan).
