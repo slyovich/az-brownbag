@@ -18,6 +18,10 @@ jobs:
       - name: "Checkout GitHub Action"
         uses: actions/checkout@v3.0.2
 
+      - name: Compute container repository name
+        run: |
+          echo "CONTAINER_IMAGE_REPOSITORY=${GITHUB_REPOSITORY,,}" >> ${GITHUB_ENV}
+
       - name: Build
         run: |
           docker build --build-arg RUNNER_VERSION=${{ env.RUNNER_VERSION }} -t ${{ env.CONTAINER_IMAGE_REPOSITORY }}/docker-github-runner:${{ env.RUNNER_VERSION }}
@@ -41,10 +45,6 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Compute container repository name
-        run: |
-          echo "CONTAINER_IMAGE_REPOSITORY=${GITHUB_REPOSITORY,,}" >> ${GITHUB_ENV}
 
       - name: Build and push container image
         uses: docker/build-push-action@v3.0.0
