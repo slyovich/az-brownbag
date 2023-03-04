@@ -48,4 +48,4 @@ jobs:
 
       - name: Push container image
         run: |
-          docker push ${{ env.CONTAINER_IMAGE_REPOSITORY }}/docker-github-runner:${{ env.RUNNER_VERSION }}
+          docker push ${{ env.CONTAINER_IMAGE_REPOSITORY }}/docker-github-runner:${{ env.RUNNER_VERSION }}:ghcr.io/${{ env.CONTAINER_IMAGE_REPOSITORY }}/docker-github-runner:${{ env.RUNNER_VERSION }}
