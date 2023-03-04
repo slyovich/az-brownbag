@@ -18,3 +18,11 @@ variable "custom-domain-name" {
   type = string
   default = null
 }
+
+variable "private-link-id" {
+  type = string
+}
+
+variable "private-link-ip-address" {
+  type = string
+}

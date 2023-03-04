@@ -115,4 +115,10 @@ module "front-door" {
   resourceGroupName              = azurerm_resource_group.rg.name
   front-door-name                = var.front-door.name
   custom-domain-name             = var.front-door.custom-domain-name
+  private-link-id                = module.container-app-environment.private-link-id
+  private-link-ip-address        = module.container-app-environment.private-link-ip-address
+
+  depends_on = [
+    module.container-app-environment
+  ]
 }
