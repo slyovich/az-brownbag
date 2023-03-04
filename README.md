@@ -64,6 +64,8 @@ Because all of our landing zone services are not publicly available, the next st
 
 A self-hosted Github runner might be deployed within a virtual machine or we can can create a container image (windows or linux) using docker that runs as container in any container service. In our case, we will take benefits of our pre-provisioned Azure Container App Environment to host the GitHub runner as an Azure Container App (ref. [Create a docker based self-hosted GitHub runner linux container](https://dev.to/pwd9000/create-a-docker-based-self-hosted-github-runner-linux-container-48dh)).
 
+The folder [docker-github-runner](docker-github-runner/) contains the Self-hosted GitHub runner docker image. This image is built using a [GitHub action](.github/workflows/docker-github-runner.yml).
+
 - GitHub Runner docker image
 - GitHub action to build docker image
 - ACA with docker image
