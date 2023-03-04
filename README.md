@@ -56,19 +56,19 @@ It consists of
 - An dedicated Azure Container App Environment to host all of our container images
 - An Azure Front Door with an origin configured to target our Azure Container App Environment
 
-This infrastructure is pre-provisioned through [code](IaC/landing-zone/) using Terraform.
+This infrastructure is pre-provisioned through [code](IaC/landing-zone/) using Terraform. You can automate the deployment using the [GitHub Action](.github/workflows/landing-zone.yml).
 More information on how to deploy this infrastructure is available [here](IaC/README.md).
 
 ## Self-hosted GitHub runner containers with Azure Container Apps
-Because all of our landing zone services are not publicly available, the next step is to deploy a self-hosted GitHub runner inside of our private virtual network, giving GitHub access to all of our infrastructure and services.
+Because all of our landing zone services are not publicly available, we need to deploy a self-hosted GitHub runner inside of our private virtual network, giving GitHub access to all of our infrastructure and services.
 
 A self-hosted Github runner might be deployed within a virtual machine or we can can create a container image (windows or linux) using docker that runs as container in any container service. In our case, we will take benefits of our pre-provisioned Azure Container App Environment to host the GitHub runner as an Azure Container App (ref. [Create a docker based self-hosted GitHub runner linux container](https://dev.to/pwd9000/create-a-docker-based-self-hosted-github-runner-linux-container-48dh)).
 
 The first step is to build the self-hosted GitHub runner. The folder [docker-github-runner](docker-github-runner/) contains the docker image definition, and the image is built using a [GitHub action](.github/workflows/docker-github-runner.yml).
 
-- GitHub Runner docker image
-- GitHub action to build docker image
-- ACA with docker image
+The next step is to create a GitHub Personal Access Token (PAT) to register the runner with. As a best practice, use only short lived PAT tokens and regenerate new tokens when a new version of a runner must be deployed. The minimum permission scopes required on the PAT token to register a self hosted runner are: "repo", "read:org". Store this access token as a secret of your repository within GitHub, enabling to use it in the deployment automation using GitHub actions.
+
+Finally, you can deploy the self-hosted GitHub runner running the Terraform [scripts](Iac/docker-github-runner/). You can also automate the deployment using the [GitHub Action](.github/workflows/docker-github-runner-deploy.yml).
 
 ## Register your AAD applications 
 - App registrations (+ redirect URIs from local and distant)

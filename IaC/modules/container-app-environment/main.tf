@@ -11,16 +11,16 @@ resource "azapi_resource" "containerapp_environment" {
  
   body = jsonencode({
     properties = {
-      daprAIConnectionString = var.app-insights-connection-string,
+      daprAIConnectionString = var.app-insights-connection-string
       appLogsConfiguration = {
         destination = "log-analytics"
         logAnalyticsConfiguration = {
-          customerId = var.log-analytics-workspace-id,
+          customerId = var.log-analytics-workspace-id
           sharedKey  = var.log-analytics-workspace-key
         }
       },
       vnetConfiguration = {
-        internal = true,
+        internal = true
         infrastructureSubnetId = var.subnet-id
       },
       zoneRedundant = true
