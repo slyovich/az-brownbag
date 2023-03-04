@@ -40,15 +40,12 @@ jobs:
           sarif_file: 'trivy-results.sarif'
 
       - name: Log in to GitHub Container Registry
-        uses: docker/login-action@v2.0.0
+        uses: docker/login-action@v2
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and push container image
-        uses: docker/build-push-action@v3.0.0
-        with:
-          context: .
-          push: true
-          tags: ghcr.io/${{ env.CONTAINER_IMAGE_REPOSITORY }}/docker-github-runner:${{ env.RUNNER_VERSION }}
+      - name: Push container image
+        run: |
+          docker push ${{ env.CONTAINER_IMAGE_REPOSITORY }}/docker-github-runner:${{ env.RUNNER_VERSION }}
