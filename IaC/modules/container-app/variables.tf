@@ -20,8 +20,10 @@ variable "container-apps" {
     image-name = string
     image = string
     tag = string
-    containerPort = number
-    ingress_enabled = bool
+    ingress = object({
+      external = bool
+      targetPort = number
+    })
     dapr_enabled = bool
     dapr_app_id = string
     dapr_app_port = number

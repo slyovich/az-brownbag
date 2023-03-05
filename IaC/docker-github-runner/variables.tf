@@ -23,8 +23,8 @@ variable "container-app" {
     }))
     env = list(object({
         name = string
-        secretRef = string
-        value = string
+        secretRef = optional(string)
+        value = optional(string)
     }))
     registry = object({
         server = string
@@ -32,24 +32,4 @@ variable "container-app" {
         passwordSecretRef = string
     })
   })
-  default = {
-    env = [ {
-      name = "value"
-      secretRef = "value"
-      value = "value"
-    } ]
-    image = "value"
-    image-name = "value"
-    name = "value"
-    registry = {
-      passwordSecretRef = "value"
-      server = "value"
-      username = "value"
-    }
-    secrets = [ {
-      name = "value"
-      value = "value"
-    } ]
-    tag = "value"
-  }
 }

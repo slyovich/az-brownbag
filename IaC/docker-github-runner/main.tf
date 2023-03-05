@@ -8,6 +8,9 @@ terraform {
       source  = "azure/azapi"
     }
   }
+
+  // https://servian.dev/terraform-optional-variables-and-attributes-using-null-and-optional-flag-62c5cd88f9ca
+  experiments = [module_variable_optional_attrs]
 }
 
 provider "azurerm" {
@@ -21,6 +24,7 @@ locals {
   tags = {
     Application = "demo"
     Scope = "PoC"
+    Description = "GitHub Runner"
   }
 }
 
@@ -36,23 +40,24 @@ module "github-runner" {
   location                       = var.location
   resourceGroupId                = data.azurerm_resource_group.rg.id
   container-app-environment-id   = var.container-app-environment-id
-  container-apps = [ {
-    name = var.container-app.name
-    image = var.container-app.image
-    image-name = var.container-app.image-name
-    tag = var.container-app.tag
-    containerPort = null
-    ingress_enabled = false
-    dapr_enabled = false
-    dapr_app_id = null
-    dapr_app_port = null
-    dapr_app_protocol = null
-    min_replicas = 0
-    max_replicas = 3
-    cpu_requests = 1.75
-    mem_requests = "3.5Gi"
-    secrets = var.container-app.secrets
-    env = var.container-app.env
-    registry = var.container-app.registry
-  } ]
+  container-apps = [
+    {
+      name = var.container-app.name
+      image = var.container-app.image
+      image-name = var.container-app.image-name
+      tag = var.container-app.tag
+      ingress = null
+      dapr_enabled = false
+      dapr_app_id = null
+      dapr_app_port = null
+      dapr_app_protocol = null
+      min_replicas = 1
+      max_replicas = 1
+      cpu_requests = 1.75
+      mem_requests = "3.5Gi"
+      secrets = var.container-app.secrets
+      env = var.container-app.env
+      registry = var.container-app.registry
+    }
+  ]
 }

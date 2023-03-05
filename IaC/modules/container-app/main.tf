@@ -9,10 +9,7 @@ resource "azapi_resource" "aca" {
     properties: {
       managedEnvironmentId = var.container-app-environment-id
       configuration = {
-        ingress = {
-          external = each.value.ingress_enabled
-          targetPort = each.value.ingress_enabled ? each.value.containerPort : null
-        }
+        ingress = each.value.ingress
         dapr = {
           enabled = each.value.dapr_enabled
           appId =  each.value.dapr_enabled ? each.value.dapr_app_id : null
@@ -48,5 +45,7 @@ resource "azapi_resource" "aca" {
     }
   })
 
-  tags = local.tags
+  tags = var.tags
+  
+  ignore_missing_property = true
 }
