@@ -21,10 +21,10 @@ jobs:
     - name: Install Terraform
       uses: hashicorp/setup-terraform@v2.0.0
 
-    # - name: "Login via Azure CLI"
-    #   uses: azure/login@v1.4.5
-    #   with:
-    #     creds: ${{ secrets.AZURE_CREDENTIALS }}
+    - name: "Login via Azure CLI"
+      uses: azure/login@v1.4.5
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
 
     - name: Terraform init
       run: |
