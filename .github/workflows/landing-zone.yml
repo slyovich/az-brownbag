@@ -4,6 +4,10 @@ on:
   workflow_dispatch:
 
 env:
+  ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+  ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+  ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+  ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
   resourceGroupName: "ARG-DEMO-BROWNBAG-CHN-01"
   storageAccountName: "asademobrownbagterraform"
   container: "tfstate"
@@ -33,11 +37,6 @@ jobs:
           -backend-config="storage_account_name=${{ env.storageAccountName }}" \
           -backend-config="container_name=${{ env.container }}" \
           -backend-config="key=demo.terraform.tfstate"
-      env:
-        ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
-        ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
-        ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
-        ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
 
     - name: Terraform plan
       run: terraform plan -out=tfplan.out

@@ -50,7 +50,7 @@ The following AZ CLI script helps you to create this storage in your subscriptio
         --name $storageAccountName --resource-group $resourceGroupName --location $location `
         --access-tier hot --kind "StorageV2" --sku "Standard_LRS" --https-only `
         --allow-blob-public-access false --allow-cross-tenant-replication false `
-        --allow-shared-key-access false  --min-tls-version "TLS1_2" `
+        --allow-shared-key-access true  --min-tls-version "TLS1_2" `
         --tags "context=terraform-state"
     
     # Add container for terraform state file
