@@ -12,7 +12,7 @@ resource "azurerm_storage_account" "storage" {
 
   cross_tenant_replication_enabled    = false
   allow_nested_items_to_be_public     = false
-  shared_access_key_enabled           = false
+  shared_access_key_enabled           = var.storage.access_key_enabled
   is_hns_enabled                      = var.storage.is_hns
 
   public_network_access_enabled       = var.storage.public_access

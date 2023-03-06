@@ -17,6 +17,7 @@ variable "storage" {
     access_tier = string
     public_access = bool
     is_hns = bool
+    access_key_enabled = bool
   })
 }
 
