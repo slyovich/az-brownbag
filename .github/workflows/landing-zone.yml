@@ -32,24 +32,32 @@ jobs:
       run: | 
         # Parse Azure secret into Terraform variables
         $servicePrincipal = $AZURE_CREDENTIALS | jq '.'
-        echo "ARM_CLIENT_ID=${servicePrincipal.clientId}" >> ${GITHUB_ENV}
-        echo "ARM_CLIENT_SECRET=${servicePrincipal.clientSecret}" >> ${GITHUB_ENV}
-        echo "ARM_SUBSCRIPTION_ID=${servicePrincipal.subscriptionId}" >> ${GITHUB_ENV}
-        echo "ARM_TENANT_ID=${servicePrincipal.tenantId}" >> ${GITHUB_ENV}
+        echo $servicePrincipal
 
-    - name: Terraform init
-      run: |
-        terraform init \
-          -backend-config="resource_group_name=${{ env.resourceGroupName }}" \
-          -backend-config="storage_account_name=${{ env.storageAccountName }}" \
-          -backend-config="container_name=${{ env.container }}" \
-          -backend-config="key=demo.terraform.tfstate"
+    # - name: Prepare environment variables
+    #   env:
+    #     AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+    #   run: | 
+    #     # Parse Azure secret into Terraform variables
+    #     $servicePrincipal = $AZURE_CREDENTIALS | jq '.'
+    #     echo "ARM_CLIENT_ID=${servicePrincipal.clientId}" >> ${GITHUB_ENV}
+    #     echo "ARM_CLIENT_SECRET=${servicePrincipal.clientSecret}" >> ${GITHUB_ENV}
+    #     echo "ARM_SUBSCRIPTION_ID=${servicePrincipal.subscriptionId}" >> ${GITHUB_ENV}
+    #     echo "ARM_TENANT_ID=${servicePrincipal.tenantId}" >> ${GITHUB_ENV}
 
-    - name: Terraform plan
-      run: terraform plan -out=tfplan.out
-      env:
-        TF_VAR_location: "westeurope"
-        TF_VAR_resourceGroupName: "ARG-DEMO-BROWNBAG-WEU-01"
+    # - name: Terraform init
+    #   run: |
+    #     terraform init \
+    #       -backend-config="resource_group_name=${{ env.resourceGroupName }}" \
+    #       -backend-config="storage_account_name=${{ env.storageAccountName }}" \
+    #       -backend-config="container_name=${{ env.container }}" \
+    #       -backend-config="key=demo.terraform.tfstate"
 
-    - name: Terraform apply
-      run: terraform apply tfplan.out
+    # - name: Terraform plan
+    #   run: terraform plan -out=tfplan.out
+    #   env:
+    #     TF_VAR_location: "westeurope"
+    #     TF_VAR_resourceGroupName: "ARG-DEMO-BROWNBAG-WEU-01"
+
+    # - name: Terraform apply
+    #   run: terraform apply tfplan.out
