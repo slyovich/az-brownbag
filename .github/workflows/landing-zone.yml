@@ -30,9 +30,11 @@ jobs:
       env:
         AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
       run: | 
-        servicePrincipal=$AZURE_CREDENTIALS | jq '.'
-        echo $servicePrincipal
-        echo $AZURE_CREDENTIALS | jq '.'
+        servicePrincipal=${{ env.AZURE_CREDENTIALS }} | jq '.'
+        echo "ARM_CLIENT_ID=${servicePrincipal.clientId}" >> ${GITHUB_ENV}
+        echo "ARM_CLIENT_SECRET=${servicePrincipal.clientSecret}" >> ${GITHUB_ENV}
+        echo "ARM_SUBSCRIPTION_ID=${servicePrincipal.subscriptionId}" >> ${GITHUB_ENV}
+        echo "ARM_TENANT_ID=${servicePrincipal.tenantId}" >> ${GITHUB_ENV}
 
     # - name: Prepare environment variables
     #   env:
