@@ -32,17 +32,17 @@ jobs:
       run: | 
         # Parse Azure secret into Terraform variables
         $servicePrincipal = $AZURE_CREDENTIALS | jq '.'
-        $env:ARM_CLIENT_ID = $servicePrincipal.clientId
-        $env:ARM_CLIENT_SECRET = $servicePrincipal.clientSecret
-        $env:ARM_SUBSCRIPTION_ID = $servicePrincipal.subscriptionId
-        $env:ARM_TENANT_ID = $servicePrincipal.tenantId
+        echo "ARM_CLIENT_ID=${servicePrincipal.clientId}" >> ${GITHUB_ENV}
+        echo "ARM_CLIENT_SECRET=${servicePrincipal.clientSecret}" >> ${GITHUB_ENV}
+        echo "ARM_SUBSCRIPTION_ID=${servicePrincipal.subscriptionId}" >> ${GITHUB_ENV}
+        echo "ARM_TENANT_ID=${servicePrincipal.tenantId}" >> ${GITHUB_ENV}
 
     - name: Terraform init
       run: |
         terraform init \
-          -backend-config="resource_group_name=$resourceGroupName" \
-          -backend-config="storage_account_name=$storageAccountName" \
-          -backend-config="container_name=$container" \
+          -backend-config="resource_group_name=${{ env.resourceGroupName }}" \
+          -backend-config="storage_account_name=${{ env.storageAccountName }}" \
+          -backend-config="container_name=${{ env.container }}" \
           -backend-config="key=demo.terraform.tfstate"
 
     - name: Terraform plan
