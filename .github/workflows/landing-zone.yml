@@ -37,9 +37,9 @@ jobs:
     - name: Terraform init
       run: |
         terraform init \
-          -backend-config="resource_group_name=${{ env:resourceGroupName }}" \
-          -backend-config="storage_account_name=${{ env:storageAccountName }}" \
-          -backend-config="container_name=${{ env:container }}" \
+          -backend-config="resource_group_name=$resourceGroupName" \
+          -backend-config="storage_account_name=$storageAccountName" \
+          -backend-config="container_name=$container" \
           -backend-config="key=demo.terraform.tfstate"
 
     - name: Terraform plan
