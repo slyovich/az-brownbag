@@ -20,6 +20,10 @@ provider "azurerm" {
 
 provider "azapi" { }
 
+# Use this data source to access the configuration of the AzureRM provider
+# https://registry.terraform.io/providers/hashicorp/azurerm/1.38.0/docs/data-sources/client_config
+data "azurerm_client_config" "current" {}
+
 locals {
   tags = {
     Application = "demo"
@@ -31,6 +35,33 @@ locals {
 # Get Resource group
 data "azurerm_resource_group" "rg" {
   name     = var.resourceGroupName
+}
+
+module "storage" {
+  source = "../modules/storage-account"
+
+  tags                           = local.tags
+  location                       = var.location
+  resourceGroupName              = data.azurerm_resource_group.rg.name
+  storage = {
+    name = var.storage-name
+    replication_type = "LRS"
+    access_tier = "Hot"
+    public_access = false
+    is_hns = false
+  }
+  private-endpoint = null
+  queues = [
+    {
+      gh-runner = "gh-runner-scaler"
+    }
+  ]
+  role-assignments = [
+    {
+      principal-id = data.azurerm_client_config.current.object_id
+      role = "Storage Queue Data Contributor"
+    }
+  ]
 }
 
 module "github-runner" {
@@ -51,13 +82,24 @@ module "github-runner" {
       dapr_app_id = null
       dapr_app_port = null
       dapr_app_protocol = null
-      min_replicas = 1
-      max_replicas = 1
+      min_replicas = 0
+      max_replicas = 3
       cpu_requests = 1.75
       mem_requests = "3.5Gi"
-      secrets = var.container-app.secrets
+      secrets = setunion(
+        var.container-app.secrets,
+        [
+          {
+            name = "storage-connection-string"
+            value = module.storage.storage-connection-string
+          }
+        ])
       env = var.container-app.env
       registry = var.container-app.registry
     }
+  ]
+
+  depends_on = [
+    module.storage
   ]
 }

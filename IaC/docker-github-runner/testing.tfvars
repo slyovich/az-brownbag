@@ -37,3 +37,5 @@ container-app = {
         passwordSecretRef = "gh-registry-token"
     }
 }
+
+storage-name = "asademobrownbag01"

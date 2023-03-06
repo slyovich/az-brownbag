@@ -33,3 +33,7 @@ variable "container-app" {
     })
   })
 }
+
+variable "storage-name" {
+  type = string
+}
