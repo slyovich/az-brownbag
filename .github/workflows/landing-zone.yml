@@ -11,6 +11,9 @@ env:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./Iac/test
 
     steps:
     - uses: actions/checkout@v3.0.2
@@ -28,7 +31,7 @@ jobs:
         AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
       run: | 
         # Parse Azure secret into Terraform variables
-        $servicePrincipal = ($env:AZURE_CREDENTIALS | ConvertFrom-Json)
+        $servicePrincipal = ($AZURE_CREDENTIALS | ConvertFrom-Json)
         $env:ARM_CLIENT_ID = $servicePrincipal.clientId
         $env:ARM_CLIENT_SECRET = $servicePrincipal.clientSecret
         $env:ARM_SUBSCRIPTION_ID = $servicePrincipal.subscriptionId
