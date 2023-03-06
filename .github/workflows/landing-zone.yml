@@ -2,3 +2,51 @@ name: Landing_Zone_Workflow
 
 on:
   workflow_dispatch:
+
+env:
+  resourceGroupName: "ARG-DEMO-BROWNBAG-CHN-01"
+  storageAccountName: "asademobrownbagterraform"
+  container: "tfstate"
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3.0.2
+    
+    - name: Install Terraform
+      uses: hashicorp/setup-terraform@v2.0.0
+
+    - name: "Login via Azure CLI"
+      uses: azure/login@v1.4.5
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: Prepare environment variables
+      env:
+        AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+      run: | 
+        # Parse Azure secret into Terraform variables
+        $servicePrincipal = ($env:AZURE_CREDENTIALS | ConvertFrom-Json)
+        $env:ARM_CLIENT_ID = $servicePrincipal.clientId
+        $env:ARM_CLIENT_SECRET = $servicePrincipal.clientSecret
+        $env:ARM_SUBSCRIPTION_ID = $servicePrincipal.subscriptionId
+        $env:ARM_TENANT_ID = $servicePrincipal.tenantId
+
+    - name: Terraform init
+      run: |
+        terraform init \
+          -backend-config="resource_group_name=${{ env:resourceGroupName }}" \
+          -backend-config="storage_account_name=${{ env:storageAccountName }}" \
+          -backend-config="container_name=${{ env:container }}" \
+          -backend-config="key=demo.terraform.tfstate"
+
+    - name: Terraform plan
+      run: terraform plan -out=tfplan.out
+      env:
+        TF_VAR_location: "westeurope"
+        TF_VAR_resourceGroupName: "ARG-DEMO-BROWNBAG-WEU-01"
+
+    - name: Terraform apply
+      run: terraform apply tfplan.out

@@ -15,33 +15,11 @@ The following schema illustrates the architecture used in this demo.
 # Getting Started
 Follow the steps described in this section in order to setup your environment enabling you to start deploying the application and apply some changes in order to see your changes deployed automatically using GitHub Actions.
 
-## Initialize Terraform and GitHub environment
-As the whole environment is deployed using [Terraform on Azure](https://learn.microsoft.com/en-us/azure/developer/terraform/overview) scripts, the first step is to provision an Azure Storage Account enabling to store the state file.
-The following AZ CLI script helps you to create this storage in your subscription:
+## Initialize GitHub and Terraform environment
+In order to run your GitHub actions authenticated with a service principal, you must create this service principal using the following commands:
 
     az login --tenant <YOUR-TENANT-ID>
     az account set --subscription <YOUR-SUBSCRIPTION-ID>
-
-    $resourceGroupName = '<YOUR-RESOURCE-GROUP-NAME>'
-    $location = '<STORAGE-LOCATION>'
-    $storageAccountName = '<YOUR-STORAGE-NAME>'
-
-    # Create terraform storage account
-    az storage account create `
-        --name $storageAccountName --resource-group $resourceGroupName --location $location `
-        --access-tier hot --kind "StorageV2" --sku "Standard_LRS" --https-only `
-        --allow-blob-public-access false --allow-cross-tenant-replication false `
-        --allow-shared-key-access true  --min-tls-version "TLS1_2" `
-        --tags "context=terraform-state"
-    
-    # Add container for terraform state file
-    az storage container create `
-        --name "tfstate" `
-        --account-name $storageAccountName `
-        --resource-group $resourceGroupName `
-        --auth-mode key
-
-In order to run your GitHub actions authenticated with a service principal, you must create this service principal using the following commands:
 
     $appName = "GitHub-Action-Deploy"
     
@@ -59,6 +37,36 @@ Then, using the output results, create the following JSON object and add this as
         "subscriptionId": "<GUID>",
         "tenantId": "<GUID>"
     }
+
+As the whole environment is deployed using [Terraform on Azure](https://learn.microsoft.com/en-us/azure/developer/terraform/overview) scripts, the first step is to provision an Azure Storage Account enabling to store the state file.
+The following AZ CLI script helps you to create this storage in your subscription:
+
+    $resourceGroupName = '<YOUR-RESOURCE-GROUP-NAME>'
+    $location = '<STORAGE-LOCATION>'
+    $storageAccountName = '<YOUR-STORAGE-NAME>'
+
+    # Create terraform storage account
+    az storage account create `
+        --name $storageAccountName --resource-group $resourceGroupName --location $location `
+        --access-tier hot --kind "StorageV2" --sku "Standard_LRS" --https-only `
+        --allow-blob-public-access false --allow-cross-tenant-replication false `
+        --allow-shared-key-access false  --min-tls-version "TLS1_2" `
+        --tags "context=terraform-state"
+    
+    # Add container for terraform state file
+    az storage container create `
+        --name "tfstate" `
+        --account-name $storageAccountName `
+        --resource-group $resourceGroupName `
+        --auth-mode key
+
+    $storageId=$(az storage account list --resource-group $resourceGroupName --output tsv --query "[?contains(name, '$($storageAccountName)')].id")
+    $sp=$(az ad sp list --display-name $appName --query [0].id -o tsv)
+    az role assignment create `
+        --role "Storage Blob Data Contributor" `
+        --assignee-object-id $sp `
+        --assignee-principal-type ServicePrincipal `
+        --scope $storageId
 
 
 ## Create your landing zone
