@@ -15,7 +15,7 @@ The following schema illustrates the architecture used in this demo.
 # Getting Started
 Follow the steps described in this section in order to setup your environment enabling you to start deploying the application and apply some changes in order to see your changes deployed automatically using GitHub Actions.
 
-## Initialize Terraform environment
+## Initialize Terraform and GitHub environment
 As the whole environment is deployed using [Terraform on Azure](https://learn.microsoft.com/en-us/azure/developer/terraform/overview) scripts, the first step is to provision an Azure Storage Account enabling to store the state file.
 The following AZ CLI script helps you to create this storage in your subscription:
 
@@ -40,6 +40,25 @@ The following AZ CLI script helps you to create this storage in your subscriptio
         --account-name $storageAccountName `
         --resource-group $resourceGroupName `
         --auth-mode key
+
+In order to run your GitHub actions authenticated with a service principal, you must create this service principal using the following commands:
+
+    $appName = "GitHub-Action-Deploy"
+    
+    az ad sp create-for-rbac `
+        --name $appName `
+        --role Owner `
+        --scope "/subscriptions/<YOUR-SUBSCRIPTION-ID>" `
+        --sdk-auth
+
+Then, using the output results, create the following JSON object and add this as a GitHub Secret.
+
+    {
+        "clientId": "<GUID>",
+        "clientSecret": "<PrincipalSecret>",
+        "subscriptionId": "<GUID>",
+        "tenantId": "<GUID>"
+    }
 
 
 ## Create your landing zone

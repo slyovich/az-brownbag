@@ -30,6 +30,7 @@ locals {
     Scope = "PoC"
     Description = "GitHub Runner"
   }
+  queueName = "gh-runner-scaler"
 }
 
 # Get Resource group
@@ -47,15 +48,13 @@ module "storage" {
     name = var.storage-name
     replication_type = "LRS"
     access_tier = "Hot"
-    public_access = false
+    public_access = true
     is_hns = false
   }
   private-endpoint = null
-  queues = [
-    {
-      gh-runner = "gh-runner-scaler"
-    }
-  ]
+  queues = {
+    gh-runner = local.queueName
+  }
   role-assignments = [
     {
       principal-id = data.azurerm_client_config.current.object_id
@@ -82,8 +81,6 @@ module "github-runner" {
       dapr_app_id = null
       dapr_app_port = null
       dapr_app_protocol = null
-      min_replicas = 0
-      max_replicas = 3
       cpu_requests = 1.75
       mem_requests = "3.5Gi"
       secrets = setunion(
@@ -96,6 +93,25 @@ module "github-runner" {
         ])
       env = var.container-app.env
       registry = var.container-app.registry
+      scale = {
+        minReplicas = 0
+        maxReplicas = 3
+        rules = [
+          {
+            name = "queue-scaling"
+            azureQueue = {
+              queueName = local.queueName
+              queueLength = 1
+              auth = [
+                {
+                  secretRef = "storage-connection-string"
+                  triggerParameter = "connection"
+                }
+              ]
+            }
+          }
+        ]
+      }
     }
   ]
 

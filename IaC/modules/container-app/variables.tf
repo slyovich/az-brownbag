@@ -28,8 +28,6 @@ variable "container-apps" {
     dapr_app_id = string
     dapr_app_port = number
     dapr_app_protocol = string  //http or grpc
-    min_replicas = number
-    max_replicas = number
     cpu_requests = number
     mem_requests = string
     secrets = list(object({
@@ -45,6 +43,42 @@ variable "container-apps" {
         server = string
         username = string
         passwordSecretRef = string
+    })
+    scale = object({
+      minReplicas = number
+      maxReplicas = number
+      rules = list(object(
+        {
+          name = string
+          azureQueue = optional(object({
+            auth = list(object(
+              {
+                secretRef = string
+                triggerParameter = string
+              }
+            ))
+            queueLength = number
+            queueName = string
+          }))
+          custom = optional(object({
+            auth = list(object(
+              {
+                secretRef = string
+                triggerParameter = string
+              }
+            ))
+            type = string
+          }))
+          http = optional(object({
+            auth = list(object(
+              {
+                secretRef = string
+                triggerParameter = string
+              }
+            ))
+          }))
+        }
+      ))
     })
   }))
 }

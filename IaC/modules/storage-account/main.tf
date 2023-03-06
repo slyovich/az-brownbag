@@ -1,23 +1,23 @@
 resource "azurerm_storage_account" "storage" {
-  name                             = var.storage.name
-  resource_group_name              = var.resourceGroupName
-  location                         = var.location
-  account_tier                     = "Standard"
-  account_replication_type         = var.storage.replication_type
-  account_kind                     = "StorageV2"
-  access_tier                      = var.storage.access_tier
+  name                                = var.storage.name
+  resource_group_name                 = var.resourceGroupName
+  location                            = var.location
+  account_tier                        = "Standard"
+  account_replication_type            = var.storage.replication_type
+  account_kind                        = "StorageV2"
+  access_tier                         = var.storage.access_tier
 
-  enable_https_traffic_only        = true
-  min_tls_version                  = "TLS1_2"
+  enable_https_traffic_only           = true
+  min_tls_version                     = "TLS1_2"
 
-  cross_tenant_replication_enabled = false
-  allow_blob_public_access         = false
-  shared_access_key_enabled        = false
-  is_hns_enabled                   = var.storage.is_hns
+  cross_tenant_replication_enabled    = false
+  allow_nested_items_to_be_public     = false
+  shared_access_key_enabled           = false
+  is_hns_enabled                      = var.storage.is_hns
 
-  public_network_access_enabled    = var.storage.public_access
+  public_network_access_enabled       = var.storage.public_access
 
-  tags                             = var.tags
+  tags                                = var.tags
 }
 
 resource "azurerm_storage_queue" "storage" {
@@ -51,7 +51,7 @@ resource "azurerm_private_endpoint" "storage" {
 }
 
 resource "azurerm_role_assignment" "akv_role_assignment" {
-  for_each = var.role-assignments
+  for_each  = { for ra in var.role-assignments: "${ra.principal-id}.${ra.role}" => ra}
 
   scope                = azurerm_storage_account.storage.id
   role_definition_name = each.value.role

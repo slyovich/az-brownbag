@@ -37,10 +37,7 @@ resource "azapi_resource" "aca" {
             }
           }         
         ]
-        scale = {
-          minReplicas = each.value.min_replicas
-          maxReplicas = each.value.max_replicas
-        }
+        scale = each.value.scale
       }
     }
   })

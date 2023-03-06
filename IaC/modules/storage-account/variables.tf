@@ -30,7 +30,7 @@ variable "private-endpoint" {
 }
 
 variable "queues" {
-  type = list(map(string))
+  type = map(string)
 }
 
 variable "role-assignments" {
