@@ -30,7 +30,7 @@ jobs:
       env:
         AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
       run: | 
-        echo "ARM_CLIENT_ID=${servicePrincipal.clientId}" >> ${GITHUB_ENV}
+        echo "ARM_CLIENT_ID=${{cAZURE_CREDENTIALS.clientId }}" >> ${GITHUB_ENV}
 
     # - name: Prepare environment variables
     #   env:
