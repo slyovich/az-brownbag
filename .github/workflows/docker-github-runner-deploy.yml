@@ -30,25 +30,6 @@ jobs:
     #     creds: ${{ secrets.AZURE_CREDENTIALS }}
 
     - name: test
-      run: echo "${{ env.containerAppEnvironment.name }}"
-      env:
-        containerAppEnvironment: ${{ fromJSON(vars.TF_VAR_containerAppEnvironment) }}
+      run: echo "${{ fromJSON(vars.TF_VAR_containerAppEnvironment).name }}"
 
-    # - name: Terraform init
-    #   run: |
-    #     terraform init \
-    #       -backend-config="resource_group_name=${{ vars.TFSTATE_RESOURCE_GROUP_NAME }}" \
-    #       -backend-config="storage_account_name=${{ vars.TFSTATE_STORAGE_ACCOUNT_NAME }}" \
-    #       -backend-config="container_name=${{ vars.TFSTATE_CONTAINER_NAME }}" \
-    #       -backend-config="key=${{ env.keyFile }}"
     
-    # - name: Terraform plan
-    #   run: terraform plan -out=tfplan.out
-    #   env:
-    #     TF_VAR_location: ${{ vars.TF_VAR_location }}
-    #     TF_VAR_resourceGroupName: ${{ vars.TF_VAR_resourceGroupName }}
-    #     TF_VAR_containerAppEnvironmentName: ${{ vars.TF_VAR_containerAppEnvironment.name }}
-
-    # - name: Terraform apply
-    #   run: terraform apply tfplan.out
-
