@@ -7,11 +7,11 @@ variable "resourceGroupName" {
   type = string
 }
 
-variable "container-app-environment-id" {
+variable "containerAppEnvironmentName" {
   type = string
 }
 
-variable "container-app" {
+variable "containerApp" {
   type = object({
     name = string
     image-name = string
@@ -34,6 +34,6 @@ variable "container-app" {
   })
 }
 
-variable "storage-name" {
+variable "storageName" {
   type = string
 }

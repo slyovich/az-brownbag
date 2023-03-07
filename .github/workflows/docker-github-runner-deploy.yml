@@ -2,3 +2,33 @@ name: Docker_Runner_Deploy_Workflow
 
 on:
   workflow_dispatch:
+
+env:
+  ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+  ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+  ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+  ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+  keyFile: "landing-zone.terraform.tfstate"
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: demo
+    defaults:
+      run:
+        working-directory: ./IaC/docker-github-runner
+
+    steps:
+    - uses: actions/checkout@v3.0.2
+    
+    - name: Install Terraform
+      uses: hashicorp/setup-terraform@v2.0.0
+
+    - name: "Login via Azure CLI"
+      uses: azure/login@v1.4.5
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: test
+      run: echo ${{ vars.TF_VAR_containerAppEnvironment.name }}
+

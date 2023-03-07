@@ -63,22 +63,22 @@ dns = {
     "keyvault" = "privatelink.vaultcore.azure.net"
 }
 
-workspace-name = "logs-demo-brownbag-01"
-app-insight-name = "aai-demo-brownbag-01"
+workspaceName = "logs-demo-brownbag-01"
+appInsightName = "aai-demo-brownbag-01"
 
-key-vault = {
+keyVault = {
     name = "kv-demo-brownbag-01"
     subnet-key = "privateEndpoint"
     dns-key = "keyvault"
 }
 
-container-app-environment = {
+containerAppEnvironment = {
     name                    = "appenv-demo-brownbag-01"
     subnet-key              = "app"
     private-link-subnet-key = "privateEndpoint"
 }
 
-front-door = {
+frontDoor = {
     name               = "fd-demo-brownbag-01"
     custom-domain-name = null
 }

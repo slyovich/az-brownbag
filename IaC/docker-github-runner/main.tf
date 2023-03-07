@@ -40,6 +40,14 @@ data "azurerm_resource_group" "rg" {
   name     = var.resourceGroupName
 }
 
+data "azapi_resource" "containerapp_environment" {
+  type      = "Microsoft.App/managedEnvironments@2022-03-01"
+  name      = var.containerAppEnvironmentName
+  parent_id = data.azurerm_resource_group.rg.id
+  
+  response_export_values  = ["id"]
+}
+
 module "storage" {
   source = "../modules/storage-account"
 
@@ -47,7 +55,7 @@ module "storage" {
   location                       = var.location
   resourceGroupName              = data.azurerm_resource_group.rg.name
   storage = {
-    name = var.storage-name
+    name = var.storageName
     replication_type = "LRS"
     access_tier = "Hot"
     public_access = true
@@ -72,13 +80,13 @@ module "github-runner" {
   tags                           = local.tags
   location                       = var.location
   resourceGroupId                = data.azurerm_resource_group.rg.id
-  container-app-environment-id   = var.container-app-environment-id
+  container-app-environment-id   = jsondecode(data.azapi_resource.containerapp_environment.output).id
   container-apps = [
     {
-      name = var.container-app.name
-      image = var.container-app.image
-      image-name = var.container-app.image-name
-      tag = var.container-app.tag
+      name = var.containerApp.name
+      image = var.containerApp.image
+      image-name = var.containerApp.image-name
+      tag = var.containerApp.tag
       ingress = null
       dapr_enabled = false
       dapr_app_id = null
@@ -87,15 +95,15 @@ module "github-runner" {
       cpu_requests = 1.75
       mem_requests = "3.5Gi"
       secrets = setunion(
-        var.container-app.secrets,
+        var.containerApp.secrets,
         [
           {
             name = "storage-connection-string"
             value = module.storage.storage-connection-string
           }
         ])
-      env = var.container-app.env
-      registry = var.container-app.registry
+      env = var.containerApp.env
+      registry = var.containerApp.registry
       scale = {
         minReplicas = 0
         maxReplicas = 3

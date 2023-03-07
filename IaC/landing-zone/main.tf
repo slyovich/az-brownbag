@@ -60,8 +60,8 @@ module "monitoring" {
   tags                = local.tags
   location            = var.location
   resourceGroupName   = var.resourceGroupName
-  workspace-name      = var.workspace-name
-  app-insight-name    = var.app-insight-name
+  workspace-name      = var.workspaceName
+  app-insight-name    = var.appInsightName
 
   depends_on = [
     azurerm_resource_group.rg
@@ -74,10 +74,10 @@ module "keyvault" {
   tags                                    = local.tags
   location                                = var.location
   resourceGroupName                       = var.resourceGroupName
-  keyvault-name                           = var.key-vault.name
-  subnet-id                               = module.vnet.subnet[var.key-vault.subnet-key].id
-  dns-id                                  = module.vnet.dns-zones[var.key-vault.dns-key].id
-  dns-name                                = module.vnet.dns-zones[var.key-vault.dns-key].name
+  keyvault-name                           = var.keyVault.name
+  subnet-id                               = module.vnet.subnet[var.keyVault.subnet-key].id
+  dns-id                                  = module.vnet.dns-zones[var.keyVault.dns-key].id
+  dns-name                                = module.vnet.dns-zones[var.keyVault.dns-key].name
   workspace-id                            = module.monitoring.workspace_id
   tenant-id                               = data.azurerm_client_config.current.tenant_id
   key-vault-default-officer-principal-id  = data.azurerm_client_config.current.object_id
@@ -95,13 +95,13 @@ module "container-app-environment" {
   location                       = var.location
   resourceGroupId                = azurerm_resource_group.rg.id
   resourceGroupName              = azurerm_resource_group.rg.name
-  environment-name               = var.container-app-environment.name
+  environment-name               = var.containerAppEnvironment.name
   app-insights-connection-string = module.monitoring.app_insights_connection_string
   log-analytics-workspace-id     = module.monitoring.workspace_workspace_id
   log-analytics-workspace-key    = module.monitoring.workspace_key
   vnet-id                        = module.vnet.vnet_id
-  subnet-id                      = module.vnet.subnet[var.container-app-environment.subnet-key].id
-  private-link-subnet-id         = module.vnet.subnet[var.container-app-environment.private-link-subnet-key].id
+  subnet-id                      = module.vnet.subnet[var.containerAppEnvironment.subnet-key].id
+  private-link-subnet-id         = module.vnet.subnet[var.containerAppEnvironment.private-link-subnet-key].id
 
   depends_on = [
     module.vnet,
@@ -115,8 +115,8 @@ module "front-door" {
   tags                           = local.tags
   location                       = var.location
   resourceGroupName              = azurerm_resource_group.rg.name
-  front-door-name                = var.front-door.name
-  custom-domain-name             = var.front-door.custom-domain-name
+  front-door-name                = var.frontDoor.name
+  custom-domain-name             = var.frontDoor.custom-domain-name
   private-link-id                = module.container-app-environment.private-link-id
   private-link-ip-address        = module.container-app-environment.private-link-ip-address
 

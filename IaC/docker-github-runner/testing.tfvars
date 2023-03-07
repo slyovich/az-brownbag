@@ -1,8 +1,8 @@
 resourceGroupName = "ARG-DEMO-BROWNBAG-CHN-01"
 
-container-app-environment-id = "<YOUR-CONTAINER-APP-ENVIRONMENT-ID>"
+containerAppEnvironmentName = "appenv-demo-brownbag-01"
 
-container-app = {
+containerApp = {
     name = "app-demo-brownbag-01"
     image-name = "docker-github-runner"
     image = "ghcr.io/slyovich/az-brownbag/docker-github-runner"
@@ -38,4 +38,4 @@ container-app = {
     }
 }
 
-storage-name = "asademobrownbag01"
+storageName = "asademobrownbag01"

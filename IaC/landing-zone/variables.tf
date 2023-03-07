@@ -46,15 +46,15 @@ variable "dns" {
   type = map(string)
 }
 
-variable "workspace-name" {
+variable "workspaceName" {
     type = string
 }
 
-variable "app-insight-name" {
+variable "appInsightName" {
     type = string
 }
 
-variable "key-vault" {
+variable "keyVault" {
   type = object({
     name        = string
     subnet-key  = string
@@ -62,7 +62,7 @@ variable "key-vault" {
   })
 }
 
-variable "container-app-environment" {
+variable "containerAppEnvironment" {
   type = object({
     name                    = string
     subnet-key              = string
@@ -70,7 +70,7 @@ variable "container-app-environment" {
   })
 }
 
-variable "front-door" {
+variable "frontDoor" {
   type = object({
     name               = string
     custom-domain-name = string

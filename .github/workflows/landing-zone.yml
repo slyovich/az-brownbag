@@ -8,7 +8,7 @@ env:
   ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
   ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
   ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
-  keyFile: "demo.terraform.tfstate"
+  keyFile: "landing-zone.terraform.tfstate"
 
 jobs:
   deploy:
@@ -16,7 +16,7 @@ jobs:
     environment: demo
     defaults:
       run:
-        working-directory: ./IaC/test
+        working-directory: ./IaC/landing-zone
 
     steps:
     - uses: actions/checkout@v3.0.2
@@ -42,6 +42,15 @@ jobs:
       env:
         TF_VAR_location: ${{ vars.TF_VAR_location }}
         TF_VAR_resourceGroupName: ${{ vars.TF_VAR_resourceGroupName }}
+        TF_VAR_vnet: ${{ vars.TF_VAR_vnet }}
+        TF_VAR_nsg: ${{ vars.TF_VAR_nsg }}
+        TF_VAR_subnets: ${{ vars.TF_VAR_subnets }}
+        TF_VAR_dns: ${{ vars.TF_VAR_dns }}
+        TF_VAR_workspaceName: ${{ vars.TF_VAR_workspaceName }}
+        TF_VAR_appInsightName: ${{ vars.TF_VAR_appInsightName }}
+        TF_VAR_keyVault: ${{ vars.TF_VAR_keyVault }}
+        TF_VAR_containerAppEnvironment: ${{ vars.TF_VAR_containerAppEnvironment }}
+        TF_VAR_frontDoor: ${{ vars.TF_VAR_frontDoor }}
 
     - name: Terraform apply
       run: terraform apply tfplan.out
