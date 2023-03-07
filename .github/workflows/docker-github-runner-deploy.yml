@@ -32,7 +32,7 @@ jobs:
     - name: test
       run: echo "${containerAppEnvironment.name}"
       env:
-        containerAppEnvironment: ${{ fromJSON(vars.containerAppEnvironment) }}
+        containerAppEnvironment: ${{ fromJSON(vars.TF_VAR_containerAppEnvironment) }}
 
     # - name: Terraform init
     #   run: |
