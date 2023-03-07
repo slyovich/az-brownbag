@@ -30,10 +30,9 @@ jobs:
     #     creds: ${{ secrets.AZURE_CREDENTIALS }}
 
     - name: test
-      run: echo "containerAppEnvironment=${{ vars.TF_VAR_containerAppEnvironment }} | jq .name" >> $GITHUB_ENV
-
-    - name: test2
-      run: echo ${env.containerAppEnvironment}
+      run: echo "${containerAppEnvironment.name}"
+      env:
+        containerAppEnvironment: ${{ fromJSON(vars.containerAppEnvironment) }}
 
     # - name: Terraform init
     #   run: |
