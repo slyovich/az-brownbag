@@ -29,7 +29,7 @@ In order to run your GitHub actions authenticated with a service principal, you 
         --scope "/subscriptions/<YOUR-SUBSCRIPTION-ID>" `
         --sdk-auth
 
-Then, using the output results, create the following JSON object and add this as a GitHub Secret.
+Then, using the output results, create the following JSON object and add this as a GitHub Secret called AZURE_CREDENTIALS.
 
     {
         "clientId": "<GUID>",
@@ -37,6 +37,9 @@ Then, using the output results, create the following JSON object and add this as
         "subscriptionId": "<GUID>",
         "tenantId": "<GUID>"
     }
+
+In order to use this identity with terraform backend, create one secret for clientId, one for clientSecret and so on, as illustrated in the image below. This will enable you to create environment variables with same name to authenticate your terraform backend configuration.
+![GitHub Secrets](./Resources/GitHub-Secrets.png)
 
 As the whole environment is deployed using [Terraform on Azure](https://learn.microsoft.com/en-us/azure/developer/terraform/overview) scripts, the first step is to provision an Azure Storage Account enabling to store the state file.
 The following AZ CLI script helps you to create this storage in your subscription:
@@ -97,13 +100,12 @@ The next step is to create a GitHub Personal Access Token (PAT) to register the 
 
 Finally, you can deploy the self-hosted GitHub runner running the Terraform [scripts](IaC/docker-github-runner/). You can also automate the deployment using the [GitHub Action](.github/workflows/docker-github-runner-deploy.yml).
 
+As the Azure Container App hosting the GitHub Runner uses auto-scaling rules based on Azure Storage Queue storage, your pipelines running on this runner must trigger a new container start. The [GitHub action](.github/workflows/keda-scale-test.yml) illustrates how this can be achieved using a first scale out job and scale in when job is terminated.
+
 ## Register your AAD applications 
 - App registrations (+ redirect URIs from local and distant)
 - Register these apps in Key Vault
 - Create schema to explain where these app are references and how they are used
-
-## Configure GitHub secrets
-- Azure credentials
 
 ## Deploy the application hosting infrastructure
 - Terraform pipeline

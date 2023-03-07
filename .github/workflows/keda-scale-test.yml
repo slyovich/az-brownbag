@@ -17,7 +17,7 @@ jobs:
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-    - name: scale up self hosted
+    - name: scale out self hosted
       id: scaleJob
       run: |
         OUTPUT=$(az storage message put --queue-name "${{ env.AZ_QUEUE_NAME }}" --content "${{ github.run_id }}" --account-name "${{ env.AZ_STORAGE_ACCOUNT }}")
@@ -48,6 +48,6 @@ jobs:
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-    - name: scale down self hosted
+    - name: scale in self hosted
       run: |
         az storage message delete --id ${{needs.scale-keda-queue-up.outputs.scaleJobId}} --pop-receipt ${{needs.scale-keda-queue-up.outputs.scaleJobPop}} --queue-name "${{ env.AZ_QUEUE_NAME }}" --account-name "${{ env.AZ_STORAGE_ACCOUNT }}"
