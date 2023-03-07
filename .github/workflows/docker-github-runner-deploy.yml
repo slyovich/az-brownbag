@@ -30,7 +30,7 @@ jobs:
     #     creds: ${{ secrets.AZURE_CREDENTIALS }}
 
     - name: test
-      run: echo "${containerAppEnvironment.name}"
+      run: echo "${{ env.containerAppEnvironment.name }}"
       env:
         containerAppEnvironment: ${{ fromJSON(vars.TF_VAR_containerAppEnvironment) }}
 
