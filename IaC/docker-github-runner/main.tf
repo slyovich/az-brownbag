@@ -58,7 +58,7 @@ module "storage" {
 
   tags                           = local.tags
   location                       = var.location
-  resourceGroupName              = data.azurerm_resource_group.rg.name
+  resourceGroupName              = azurerm_resource_group.rg.name
   storage = {
     name = var.storageName
     replication_type = "LRS"
@@ -84,7 +84,7 @@ module "github-runner" {
 
   tags                           = local.tags
   location                       = var.location
-  resourceGroupId                = data.azurerm_resource_group.rg.id
+  resourceGroupId                = azurerm_resource_group.rg.id
   container-app-environment-id   = jsondecode(data.azapi_resource.containerapp_environment.output).id
   container-apps = [
     {
