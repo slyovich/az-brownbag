@@ -21,41 +21,41 @@ resource "azurerm_cdn_frontdoor_custom_domain" "fd" {
   }
 }
 
-resource "azurerm_cdn_frontdoor_origin_group" "fd" {
-  name                     = "${var.front-door-name}-origin-group"
-  cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.fd.id
-  session_affinity_enabled = false
+# resource "azurerm_cdn_frontdoor_origin_group" "fd" {
+#   name                     = "${var.front-door-name}-origin-group"
+#   cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.fd.id
+#   session_affinity_enabled = false
 
-  restore_traffic_time_to_healed_or_new_endpoint_in_minutes = 10
+#   restore_traffic_time_to_healed_or_new_endpoint_in_minutes = 10
 
-  # health_probe {
-  #   interval_in_seconds = 100
-  #   path                = "/"
-  #   protocol            = "Http"
-  #   request_type        = "HEAD"
-  # }
+#   health_probe {
+#     interval_in_seconds = 100
+#     path                = "/"
+#     protocol            = "Https"
+#     request_type        = "HEAD"
+#   }
 
-  load_balancing {
-    additional_latency_in_milliseconds = 0
-    sample_size                        = 16
-    successful_samples_required        = 3
-  }
-}
+#   load_balancing {
+#     additional_latency_in_milliseconds = 50
+#     sample_size                        = 16
+#     successful_samples_required        = 10
+#   }
+# }
 
-resource "azurerm_cdn_frontdoor_origin" "fd" {
-  name                          = "${var.front-door-name}-origin"
-  cdn_frontdoor_origin_group_id = azurerm_cdn_frontdoor_origin_group.fd.id
-  enabled                       = true
+# resource "azurerm_cdn_frontdoor_origin" "fd" {
+#   name                          = "${var.front-door-name}-origin"
+#   cdn_frontdoor_origin_group_id = azurerm_cdn_frontdoor_origin_group.fd.id
+#   enabled                       = true
 
-  certificate_name_check_enabled = true # Required for Private Link
-  host_name                      = var.private-link-ip-address
-  origin_host_header             = var.private-link-ip-address
-  priority                       = 1
-  weight                         = 500
+#   certificate_name_check_enabled = true # Required for Private Link
+#   host_name                      = var.private-link-ip-address
+#   origin_host_header             = var.private-link-ip-address
+#   priority                       = 1
+#   weight                         = 500
 
-  private_link {
-    request_message        = "Request access for CDN Frontdoor Private Link Origin Load Balancer"
-    location               = var.location
-    private_link_target_id = var.private-link-id
-  }
-}
+#   private_link {
+#     request_message        = "Request access for CDN Frontdoor Private Link Origin Load Balancer"
+#     location               = var.location
+#     private_link_target_id = var.private-link-id
+#   }
+# }
