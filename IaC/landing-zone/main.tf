@@ -109,6 +109,15 @@ module "container-app-environment" {
   ]
 }
 
+data "azurerm_private_link_service" "container-app-environment" {
+  name                = module.container-app-environment.private-link-name
+  resource_group_name = var.resourceGroupName
+
+  depends_on = [
+    module.container-app-environment
+  ]
+}
+
 module "front-door" {
   source = "../modules/front-door"
 
@@ -117,8 +126,8 @@ module "front-door" {
   resourceGroupName              = azurerm_resource_group.rg.name
   front-door-name                = var.frontDoor.name
   custom-domain-name             = var.frontDoor.custom-domain-name
-  private-link-id                = module.container-app-environment.private-link-id
-  private-link-ip-address        = module.container-app-environment.private-link-ip-address
+  private-link-id                = data.azurerm_private_link_service.container-app-environment.id
+  private-link-ip-address        = data.azurerm_private_link_service.container-app-environment.nat_ip_configuration[0].private_ip_address
 
   depends_on = [
     module.container-app-environment
