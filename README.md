@@ -15,6 +15,19 @@ The following schema illustrates the architecture used in this demo.
 # Getting Started
 Follow the steps described in this section in order to setup your environment enabling you to start deploying the application and apply some changes in order to see your changes deployed automatically using GitHub Actions.
 
+## Software architecture 
+Our software architecture is based on a request routing in Backend for Frontend (BFF) scenarios. This means that we built a reverse proxy used to re-route requests from frontend application via BFF to destination API endpoint. BFF layer is protected with cookie based authentication so "No tokens in browser" can be applied. Basically reverse proxy functionality of BFF layer extracts access token from the cookie and passes it further to destination API endpoint. The reverse proxy is implemented using [YARP](https://microsoft.github.io/reverse-proxy/) middleware.
+This architecture is based on the blog [How to implement request routing for BFF with YARP](https://www.kallemarjokorpi.fi/blog/request-routing-in-bff.html).
+
+The following schema illustrates the communication flow between the frontend client (running in the browser), the reverse proxy and the backend API.
+
+![Request routing](Resources/Architecture-Request%20Routing.png)
+
+### Azure Applications
+As we have two services that perform user authorization based on a token emitted by the Azure Active Directory, we need to register these services as application in Azure App Registrations. One of these applications (Backend for Frontend) uses the [OAuth 2.0 on behalf-of flow](https://learn.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-on-behalf-of-flow) to authenticate requests to the downstream API Endpoint, we need also to generate an secret for this application.
+
+These applications are registered through [code](IaC/app-registrations/) using AZ CLI. Update the script [main.ps1](IaC/app-registrations/main.ps1) and ensure to copy the returned values and store them as repository variables and secrets (in my case APP_REGISTRATION_CLIENTID_FOR_API, APP_REGISTRATION_CLIENTID_FOR_BFF and APP_REGISTRATION_SECRET_FOR_BFF). You will use these information when deploying your container infrastructure using GitHub Actions.
+
 ## Initialize GitHub and Terraform environment
 In order to run your GitHub actions authenticated with a service principal, you must create this service principal using the following commands:
 
@@ -104,11 +117,6 @@ The next step is to create a GitHub Personal Access Token (PAT) to register the 
 Finally, you can deploy the self-hosted GitHub runner running the Terraform [scripts](IaC/docker-github-runner/). You can also automate the deployment using the [GitHub Action](.github/workflows/docker-github-runner-deploy.yml).
 
 As the Azure Container App hosting the GitHub Runner uses auto-scaling rules based on Azure Storage Queue storage, your pipelines running on this runner must trigger a new container start. The [GitHub action](.github/workflows/keda-scale-test.yml) illustrates how this can be achieved using a first scale out job and scale in when job is terminated.
-
-## Register your AAD applications 
-- App registrations (+ redirect URIs from local and distant)
-- Register these apps in Key Vault
-- Create schema to explain where these app are references and how they are used
 
 ## Deploy the application hosting infrastructure
 - Terraform pipeline
