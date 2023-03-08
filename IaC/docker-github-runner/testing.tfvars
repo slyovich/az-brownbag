@@ -7,16 +7,6 @@ containerApp = {
     image-name = "docker-github-runner"
     image = "ghcr.io/slyovich/az-brownbag/docker-github-runner"
     tag = "2.302.1"
-    secrets = [ 
-        {
-            name = "gh-token"
-            value = "<YOUR-GITHUB-RUNNER-TOKEN>"
-        },
-        {
-            name = "gh-registry-token"
-            value = "<YOUR-GITHUB-READ-PACKAGES-TOKEN>"
-        }
-    ]
     env = [ 
         {
             name = "GH_OWNER"
@@ -37,5 +27,8 @@ containerApp = {
         passwordSecretRef = "gh-registry-token"
     }
 }
+
+githubRunnerToken = "<YOUR-GITHUB-RUNNER-TOKEN>"
+githubRegistryToken = "<YOUR-GITHUB-READ-PACKAGES-TOKEN>"
 
 storageName = "asademobrownbag01"

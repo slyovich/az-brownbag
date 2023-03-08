@@ -17,10 +17,6 @@ variable "containerApp" {
     image-name = string
     image = string
     tag = string
-    secrets = list(object({
-        name = string
-        value = string
-    }))
     env = list(object({
         name = string
         secretRef = optional(string)
@@ -32,6 +28,16 @@ variable "containerApp" {
         passwordSecretRef = string
     })
   })
+}
+
+variable "githubRunnerToken" {
+  type = string
+  description = "Token used to identify the runner within GitHub"
+}
+
+variable "githubRegistryToken" {
+  type = string
+  description = "Token used to fetch the container image from GitHub Packages"
 }
 
 variable "storageName" {

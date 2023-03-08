@@ -94,14 +94,20 @@ module "github-runner" {
       dapr_app_protocol = null
       cpu_requests = 1.75
       mem_requests = "3.5Gi"
-      secrets = setunion(
-        var.containerApp.secrets,
-        [
-          {
-            name = "storage-connection-string"
-            value = module.storage.storage-connection-string
-          }
-        ])
+      secrets = [ 
+        {
+            name = "gh-token"
+            value = var.githubRunnerToken
+        },
+        {
+            name = "gh-registry-token"
+            value = var.githubRegistryToken
+        },
+        {
+          name = "storage-connection-string"
+          value = module.storage.storage-connection-string
+        }
+      ]
       env = var.containerApp.env
       registry = var.containerApp.registry
       scale = {
