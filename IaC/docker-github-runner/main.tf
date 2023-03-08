@@ -1,4 +1,6 @@
 terraform {
+  required_version = ">= 1.3.0"
+
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
@@ -10,9 +12,6 @@ terraform {
   }
 
   backend "azurerm" { }
-
-  // https://servian.dev/terraform-optional-variables-and-attributes-using-null-and-optional-flag-62c5cd88f9ca
-  experiments = [module_variable_optional_attrs]
 }
 
 provider "azurerm" {
