@@ -6,8 +6,8 @@ output "private-link-id" {
   value = azurerm_private_link_service.container_app_environment.id
 }
 
-output "private-link-name" {
-  value = azurerm_private_link_service.container_app_environment.name
+output "private-link-id" {
+  value = azurerm_private_link_service.container_app_environment.id
 }
 
 output "private-link-ip-address" {
