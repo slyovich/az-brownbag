@@ -48,6 +48,9 @@ The following AZ CLI script helps you to create this storage in your subscriptio
     $location = '<STORAGE-LOCATION>'
     $storageAccountName = '<YOUR-STORAGE-NAME>'
 
+    # Create terraform resource group
+    az group create --name $resourceGroupName --location $location
+
     # Create terraform storage account
     az storage account create `
         --name $storageAccountName --resource-group $resourceGroupName --location $location `

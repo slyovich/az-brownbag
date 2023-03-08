@@ -1,4 +1,4 @@
-resourceGroupName = "ARG-DEMO-BROWNBAG-CHN-01"
+resourceGroupName = "ARG-DEMO-BROWNBAG-CHN-02"
 
 vnet = {
     name = "vnet-demo-brownbag-01"

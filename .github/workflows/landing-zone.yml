@@ -41,7 +41,7 @@ jobs:
       run: terraform plan -out=tfplan.out
       env:
         TF_VAR_location: ${{ vars.TF_VAR_location }}
-        TF_VAR_resourceGroupName: ${{ vars.TF_VAR_resourceGroupName }}
+        TF_VAR_resourceGroupName: ${{ vars.TF_VAR_LandingZone_ResourceGroupName }}
         TF_VAR_vnet: ${{ vars.TF_VAR_vnet }}
         TF_VAR_nsg: ${{ vars.TF_VAR_nsg }}
         TF_VAR_subnets: ${{ vars.TF_VAR_subnets }}

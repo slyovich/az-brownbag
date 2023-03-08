@@ -41,8 +41,8 @@ jobs:
       run: terraform plan -out=tfplan.out
       env:
         TF_VAR_location: ${{ vars.TF_VAR_location }}
-        TF_VAR_resourceGroupName: ${{ vars.TF_VAR_resourceGroupName }}
-        TF_VAR_containerAppEnvironmentName: ${{ vars.TF_VAR_containerAppEnvironmentName }}
+        TF_VAR_resourceGroupName: ${{ vars.TF_VAR_GitHubRunner_ResourceGroupName }}
+        TF_VAR_containerAppEnvironment: ${{ vars.TF_VAR_containerAppEnvironment_Reference }}
         TF_VAR_githubRunnerToken: ${{ secrets.RUNNER_PAT_TOKEN }}
         TF_VAR_githubRegistryToken: ${{ secrets.REGISTRY_PAT_TOKEN }}
         TF_VAR_storageName: ${{ vars.TF_VAR_githubRunnerQueueStorageName }}

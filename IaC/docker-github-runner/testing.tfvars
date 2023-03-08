@@ -1,6 +1,9 @@
-resourceGroupName = "ARG-DEMO-BROWNBAG-CHN-01"
+resourceGroupName = "ARG-DEMO-BROWNBAG-CHN-03"
 
-containerAppEnvironmentName = "appenv-demo-brownbag-01"
+containerAppEnvironment = {
+    name = "appenv-demo-brownbag-01"
+    resource-group-name = "ARG-DEMO-BROWNBAG-CHN-02"
+}
 
 containerApp = {
     name = "app-demo-brownbag-01"

@@ -29,21 +29,27 @@ data "azurerm_client_config" "current" {}
 locals {
   tags = {
     Application = "demo"
-    Scope = "PoC"
-    Description = "GitHub Runner"
+    Scope = "GitHub Runner"
   }
   queueName = "gh-runner-scaler"
 }
 
-# Get Resource group
-data "azurerm_resource_group" "rg" {
+# Create Resource group
+resource "azurerm_resource_group" "rg" {
   name     = var.resourceGroupName
+  location = var.location
+
+  tags = local.tags
+}
+
+data "azurerm_resource_group" "landing-zone" {
+  name    = var.containerAppEnvironment.resource-group-name
 }
 
 data "azapi_resource" "containerapp_environment" {
   type      = "Microsoft.App/managedEnvironments@2022-03-01"
-  name      = var.containerAppEnvironmentName
-  parent_id = data.azurerm_resource_group.rg.id
+  name      = var.containerAppEnvironment.name
+  parent_id = data.azurerm_resource_group.landing-zone.id
   
   response_export_values  = ["id"]
 }

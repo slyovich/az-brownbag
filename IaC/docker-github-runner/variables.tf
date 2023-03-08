@@ -7,8 +7,11 @@ variable "resourceGroupName" {
   type = string
 }
 
-variable "containerAppEnvironmentName" {
-  type = string
+variable "containerAppEnvironment" {
+  type = object({
+    name  = string
+    resource-group-name = string
+  })
 }
 
 variable "containerApp" {

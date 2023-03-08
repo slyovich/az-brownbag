@@ -26,7 +26,7 @@ data "azurerm_client_config" "current" {}
 locals {
   tags = {
     Application = "demo"
-    Scope = "PoC"
+    Scope = "Landing Zone"
   }
 }
 
