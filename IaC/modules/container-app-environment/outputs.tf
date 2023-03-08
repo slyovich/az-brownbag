@@ -7,5 +7,5 @@ output "private-link-id" {
 }
 
 output "private-link-ip-address" {
-  value = azurerm_private_link_service.container_app_environment.nat_ip_configuration.private_ip_address
+  value = azurerm_private_link_service.container_app_environment.nat_ip_configuration[0].private_ip_address
 }
