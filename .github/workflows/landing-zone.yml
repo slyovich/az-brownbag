@@ -89,9 +89,7 @@ jobs:
     - name: Checkov GitHub Action
       uses: bridgecrewio/checkov-action@v12
       with:
-        # This will add both a CLI output to the console and create a results.sarif file
-        directory: ${{ env.working-directory }}
-        file: tfplan.json
+        file: ${{ env.working-directory }}/tfplan.json
         output_format: cli,sarif
         output_file_path: console,results.sarif
       
