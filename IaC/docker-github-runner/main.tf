@@ -65,7 +65,7 @@ module "storage" {
     access_tier = "Hot"
     public_access = true
     is_hns = false
-    access_key_enabled = false
+    access_key_enabled = true
   }
   private-endpoint = null
   queues = {

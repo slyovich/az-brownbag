@@ -94,6 +94,8 @@ jobs:
         file: ${{ env.working-directory }}/tfplan.json
         output_format: cli,sarif
         output_file_path: console,results.sarif
+        quiet: true # optional: display only failed checks
+        soft_fail: true # optional: do not return an error code if there are failed checks
       
     - name: Upload SARIF file
       uses: github/codeql-action/upload-sarif@v2
@@ -107,7 +109,7 @@ jobs:
         sarif_file: results.sarif
 
     - name: Setup Infracost
-      if: github.event_name == 'pull_request'
+      if: (success() || failure()) && github.event_name == 'pull_request'
       uses: infracost/actions/setup@v2
       with:
         api-key: ${{ secrets.INFRACOST_API_KEY }}
@@ -115,14 +117,14 @@ jobs:
 
     # Generate Infracost JSON file as the baseline.
     - name: Generate Infracost cost estimate baseline
-      if: github.event_name == 'pull_request'
+      if: (success() || failure()) && github.event_name == 'pull_request'
       run: |
         infracost breakdown --path=tfplan.json \
                             --format=json \
                             --out-file=/tmp/infracost.json
 
     - name: Post Infracost comment
-      if: github.event_name == 'pull_request'
+      if: (success() || failure()) && github.event_name == 'pull_request'
       run: |
         infracost comment github --path=/tmp/infracost.json \
                                  --repo=$GITHUB_REPOSITORY \
