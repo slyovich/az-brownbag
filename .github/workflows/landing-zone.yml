@@ -6,12 +6,22 @@ on:
     branches:
       - 'main'
     paths:
-      - ./IaC/landing-zone
+      - 'IaC/landing-zone/**'
+      - 'IaC/modules/container-app-environment/**'
+      - 'IaC/modules/front-door/**'
+      - 'IaC/modules/key-vault/**'
+      - 'IaC/modules/monitoring/**'
+      - 'IaC/modules/virtual-network/**'
   push:
     branches:
       - 'main'
     paths:
-      - ./IaC/landing-zone
+      - 'IaC/landing-zone/**'
+      - 'IaC/modules/container-app-environment/**'
+      - 'IaC/modules/front-door/**'
+      - 'IaC/modules/key-vault/**'
+      - 'IaC/modules/monitoring/**'
+      - 'IaC/modules/virtual-network/**'
 
 env:
   ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
