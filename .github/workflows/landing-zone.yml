@@ -5,6 +5,7 @@ on:
     branches:
       - 'main'
     paths:
+      - '.github/workflows/landing-zone.yml'
       - 'IaC/landing-zone/**'
       - 'IaC/modules/container-app-environment/**'
       - 'IaC/modules/front-door/**'
@@ -15,6 +16,7 @@ on:
     branches:
       - 'main'
     paths:
+      - '.github/workflows/landing-zone.yml'
       - 'IaC/landing-zone/**'
       - 'IaC/modules/container-app-environment/**'
       - 'IaC/modules/front-door/**'
