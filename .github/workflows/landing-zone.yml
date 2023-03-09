@@ -2,6 +2,16 @@ name: Landing_Zone_Workflow
 
 on:
   workflow_dispatch:
+  pull_request:
+    branches:
+      - 'main'
+    paths:
+      - ./IaC/landing-zone
+  push:
+    branches:
+      - 'main'
+    paths:
+      - ./IaC/landing-zone
 
 env:
   ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
@@ -37,6 +47,9 @@ jobs:
           -backend-config="container_name=${{ vars.TFSTATE_CONTAINER_NAME }}" \
           -backend-config="key=${{ env.keyFile }}"
 
+    - name: Terraform validate
+      run: terraform validate
+
     - name: Terraform plan
       run: terraform plan -out=tfplan.out
       env:
@@ -52,5 +65,28 @@ jobs:
         TF_VAR_containerAppEnvironment: ${{ vars.TF_VAR_containerAppEnvironment }}
         TF_VAR_frontDoor: ${{ vars.TF_VAR_frontDoor }}
 
+    - name: Transform plan to json
+      run: terraform show -json tfplan.out > tfplan.json
+
+    - name: Checkov GitHub Action
+      uses: bridgecrewio/checkov-action@v12
+      with:
+        # This will add both a CLI output to the console and create a results.sarif file
+        file: tfplan.json
+        output_format: cli,sarif
+        output_file_path: console,results.sarif
+      
+    - name: Upload SARIF file
+      uses: github/codeql-action/upload-sarif@v2
+      # Results are generated only on a success or failure
+      # this is required since GitHub by default won't run the next step
+      # when the previous one has failed. Security checks that do not pass will 'fail'.
+      # An alternative is to add `continue-on-error: true` to the previous step
+      # Or 'soft_fail: true' to checkov.
+      if: success() || failure()
+      with:
+        sarif_file: results.sarif
+
     - name: Terraform apply
+      if: success() && github.event_name != 'pull_request'
       run: terraform apply tfplan.out
