@@ -12,10 +12,7 @@ The following schema illustrates the architecture used in this demo.
 
 ![Architecture](Resources/Architecture-Target%20architecture.png)
 
-# Getting Started
-Follow the steps described in this section in order to setup your environment enabling you to start deploying the application and apply some changes in order to see your changes deployed automatically using GitHub Actions.
-
-## Software architecture 
+# Software architecture
 Our software architecture is based on a request routing in Backend for Frontend (BFF) scenarios. This means that we built a reverse proxy used to re-route requests from frontend application via BFF to destination API endpoint. BFF layer is protected with cookie based authentication so "No tokens in browser" can be applied. Basically reverse proxy functionality of BFF layer extracts access token from the cookie and passes it further to destination API endpoint. The reverse proxy is implemented using [YARP](https://microsoft.github.io/reverse-proxy/) middleware.
 This architecture is based on the blog [How to implement request routing for BFF with YARP](https://www.kallemarjokorpi.fi/blog/request-routing-in-bff.html).
 
@@ -23,7 +20,10 @@ The following schema illustrates the communication flow between the frontend cli
 
 ![Request routing](Resources/Architecture-Request%20Routing.png)
 
-### Azure Applications
+# Getting Started
+Follow the steps described in this section in order to setup your environment enabling you to start deploying the application and apply some changes in order to see your changes deployed automatically using GitHub Actions.
+
+## Azure Applications Registrations
 As we have two services that perform user authorization based on a token emitted by the Azure Active Directory, we need to register these services as application in Azure App Registrations. One of these applications (Backend for Frontend) uses the [OAuth 2.0 on behalf-of flow](https://learn.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-on-behalf-of-flow) to authenticate requests to the downstream API Endpoint, we need also to generate an secret for this application.
 
 These applications are registered through [code](IaC/app-registrations/) using AZ CLI. Update the script [main.ps1](IaC/app-registrations/main.ps1) and ensure to copy the returned values and store them as repository variables and secrets (in my case APP_REGISTRATION_CLIENTID_FOR_API, APP_REGISTRATION_CLIENTID_FOR_BFF and APP_REGISTRATION_SECRET_FOR_BFF). You will use these information when deploying your container infrastructure using GitHub Actions.
@@ -52,6 +52,7 @@ Then, using the output results, create the following JSON object and add this as
     }
 
 In order to use this identity with terraform backend, create one secret for clientId, one for clientSecret and so on, as illustrated in the image below. This will enable you to create environment variables with same name to authenticate your terraform backend configuration.
+
 ![GitHub Secrets](./Resources/GitHub-Secrets.png)
 
 As the whole environment is deployed using [Terraform on Azure](https://learn.microsoft.com/en-us/azure/developer/terraform/overview) scripts, the first step is to provision an Azure Storage Account enabling to store the state file.
