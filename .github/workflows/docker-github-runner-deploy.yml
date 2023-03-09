@@ -84,6 +84,8 @@ jobs:
         file: ${{ env.working-directory }}/tfplan.json
         output_format: cli,sarif
         output_file_path: console,results.sarif
+        quiet: true # optional: display only failed checks
+        soft_fail: true # optional: do not return an error code if there are failed checks
       
     - name: Upload SARIF file
       uses: github/codeql-action/upload-sarif@v2
