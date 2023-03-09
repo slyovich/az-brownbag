@@ -119,14 +119,14 @@ Finally, you can deploy the self-hosted GitHub runner running the Terraform [scr
 
 As the Azure Container App hosting the GitHub Runner uses auto-scaling rules based on Azure Storage Queue storage, your pipelines running on this runner must trigger a new container start. The [GitHub action](.github/workflows/keda-scale-test.yml) illustrates how this can be achieved using a first scale out job and scale in when job is terminated.
 
-## Deploy the application hosting infrastructure
-- Terraform pipeline
-- Use KeyVault secrets to create ACA secrets
-    End of march, public preview (https://github.com/microsoft/azure-container-apps/issues/608)
+## Deploy the application and its hosting infrastructure
+- Pipeline: Terraform (sql, redis, aca, front door) + code
 - Set ACA managed identity
 - Grant access to Key Vault to ACA managed identity
+- Use KeyVault secrets to create ACA secrets
+    End of march, public preview (https://github.com/microsoft/azure-container-apps/issues/608)
 
-## Deploy the application
-- BFF
+One container for
+- BFF (with ingress)
 - WebApp
 - WebApi
