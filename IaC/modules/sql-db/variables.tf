@@ -10,16 +10,22 @@ variable "resourceGroupName" {
   type = string
 }
 
-variable "keyvault" {
+variable "sql-db" {
   type = object({
     name = string
+    server-name = string
     subnet-id = string
     dns-id = string
     workspace-id = string
-    tenant-id = string
+    admin = object({
+      username = string
+      password = string
+    })
+    managed-identity = object({
+      type = object({
+        name = string
+        principal-id = string
+      })
+    })
   })
-}
-
-variable "key-vault-default-officer-principal-id" {
-  type = string
 }

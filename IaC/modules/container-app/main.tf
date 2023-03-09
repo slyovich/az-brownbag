@@ -41,6 +41,11 @@ resource "azapi_resource" "aca" {
       }
     }
   })
+  
+  identity {
+    type = "SystemAssigned"
+  }
+  
 
   tags = var.tags
   
