@@ -84,9 +84,11 @@ jobs:
         TF_VAR_frontDoor: ${{ vars.TF_VAR_frontDoor }}
 
     - name: Transform plan to json
+      if: github.event_name == 'pull_request'
       run: terraform show -json tfplan.out > tfplan.json
 
     - name: Checkov GitHub Action
+      if: github.event_name == 'pull_request'
       uses: bridgecrewio/checkov-action@v12
       with:
         file: ${{ env.working-directory }}/tfplan.json
@@ -100,9 +102,33 @@ jobs:
       # when the previous one has failed. Security checks that do not pass will 'fail'.
       # An alternative is to add `continue-on-error: true` to the previous step
       # Or 'soft_fail: true' to checkov.
-      if: success() || failure()
+      if: (success() || failure()) && github.event_name == 'pull_request'
       with:
         sarif_file: results.sarif
+
+    - name: Setup Infracost
+      if: github.event_name == 'pull_request'
+      uses: infracost/actions/setup@v2
+      with:
+        api-key: ${{ secrets.INFRACOST_API_KEY }}
+        currency: CHF
+
+    # Generate Infracost JSON file as the baseline.
+    - name: Generate Infracost cost estimate baseline
+      if: github.event_name == 'pull_request'
+      run: |
+        infracost breakdown --path=${{ env.working-directory }}/tfplan.json \
+                            --format=json \
+                            --out-file=/tmp/infracost.json
+
+    - name: Post Infracost comment
+      if: github.event_name == 'pull_request'
+      run: |
+        infracost comment github --path=/tmp/infracost.json \
+                                 --repo=$GITHUB_REPOSITORY \
+                                 --github-token=${{github.token}} \
+                                 --pull-request=${{github.event.pull_request.number}} \
+                                 --behavior=update
 
     - name: Terraform apply
       if: success() && github.event_name != 'pull_request'
