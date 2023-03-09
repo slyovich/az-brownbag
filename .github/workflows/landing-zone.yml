@@ -117,7 +117,7 @@ jobs:
     - name: Generate Infracost cost estimate baseline
       if: github.event_name == 'pull_request'
       run: |
-        infracost breakdown --path=${{ env.working-directory }}/tfplan.json \
+        infracost breakdown --path=tfplan.json \
                             --format=json \
                             --out-file=/tmp/infracost.json
 
