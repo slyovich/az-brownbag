@@ -109,12 +109,29 @@ module "github-runner" {
             value = var.githubRegistryToken
         },
         {
-          name = "storage-connection-string"
-          value = module.storage.storage-connection-string
+            name = "storage-connection-string"
+            value = module.storage.storage-connection-string
         }
       ]
-      env = var.containerApp.env
-      registry = var.containerApp.registry
+      env = [ 
+        {
+            name = "GH_OWNER"
+            value = "slyovich"
+        },
+        {
+            name = "GH_REPOSITORY"
+            value = "az-brownbag"
+        },
+        {
+            name = "GH_TOKEN"
+            secretRef = "gh-token"
+        }
+      ]
+      registry = {
+        server = var.containerApp.registry.server
+        username = var.containerApp.registry.username
+        passwordSecretRef = "gh-registry-token"
+      }
       scale = {
         minReplicas = 0
         maxReplicas = 3

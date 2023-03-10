@@ -20,15 +20,9 @@ variable "containerApp" {
     image-name = string
     image = string
     tag = string
-    env = list(object({
-        name = string
-        secretRef = optional(string)
-        value = optional(string)
-    }))
     registry = object({
         server = string
         username = string
-        passwordSecretRef = string
     })
   })
 }
