@@ -30,6 +30,12 @@ variable "sqlDb" {
 
 variable "redis" {
   type = object({
+    name = string
+    sku = object({
+        name = string
+        family = string
+        capacity = string
+    })
     dns-name = string
   })
 }

@@ -61,3 +61,18 @@ data "azurerm_log_analytics_workspace" "logs" {
   name                = var.landingZone.workspace-name
   resource_group_name = var.landingZone.resource-group-name
 }
+
+module "redis" {
+  source = "../modules/redis"
+
+  tags                           = local.tags
+  location                       = var.location
+  resourceGroupName              = azurerm_resource_group.rg
+
+  redis = {
+    name = var.redis.name
+    sku = var.redis.sku
+    subnet-id = data.azurerm_subnet.private-endpoint-subnet.id
+    dns-id = data.azurerm_private_dns_zone.redis-dns.id
+  }
+}
