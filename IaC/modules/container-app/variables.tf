@@ -78,6 +78,9 @@ variable "container-apps" {
                 triggerParameter = string
               }
             ))
+            metadata = object({
+              concurrentRequests = number
+            })
           }))
         }
       ))
