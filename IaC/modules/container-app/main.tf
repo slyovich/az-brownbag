@@ -11,10 +11,10 @@ resource "azapi_resource" "aca" {
       configuration = {
         ingress = each.value.ingress
         dapr = {
-          enabled = each.value.dapr_enabled
-          appId =  each.value.dapr_enabled ? each.value.dapr_app_id : null
-          appPort = each.value.dapr_enabled ? each.value.dapr_app_port : null
-          appProtocol = each.value.dapr_enabled ? each.value.dapr_app_protocol : null
+          enabled = each.value.dapr.enabled
+          appId =  each.value.dapr.enabled ? each.value.dapr.app_id : null
+          appPort = each.value.dapr.enabled ? each.value.dapr.app_port : null
+          appProtocol = each.value.dapr.enabled ? each.value.dapr.app_protocol : null
         }
         secrets = each.value.secrets
         registries = [

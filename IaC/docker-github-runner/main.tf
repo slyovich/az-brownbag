@@ -93,10 +93,12 @@ module "github-runner" {
       image-name = var.containerApp.image-name
       tag = var.containerApp.tag
       ingress = null
-      dapr_enabled = false
-      dapr_app_id = null
-      dapr_app_port = null
-      dapr_app_protocol = null
+      dapr = {
+        enabled = false
+        app_id = null
+        app_port = null
+        app_protocol = null
+      }
       cpu_requests = 1.75
       mem_requests = "3.5Gi"
       secrets = [ 

@@ -24,10 +24,12 @@ variable "container-apps" {
       external = bool
       targetPort = number
     })
-    dapr_enabled = bool
-    dapr_app_id = string
-    dapr_app_port = number
-    dapr_app_protocol = string  //http or grpc
+    dapr = object({
+      enabled = bool
+      app_id = string
+      app_port = number
+      app_protocol = string  //http or grpc  
+    })
     cpu_requests = number
     mem_requests = string
     secrets = list(object({
