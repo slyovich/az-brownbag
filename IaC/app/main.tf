@@ -23,6 +23,7 @@ locals {
     Application = "demo"
     Scope = "Application"
   }
+  sql_dbconnection_string = "Server=${var.sqlDb.server-name}.database.windows.net; Authentication=Active Directory Default; Database=${var.sqlDb.name};MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;Persist Security Info=False;"
 }
 
 # Create Resource group
@@ -40,18 +41,23 @@ resource "random_password" "password" {
   override_special = "!#$%&*()-_=+[]{}<>:?"
 }
 
-data "azurerm_subnet" "subnet" {
-  name                 = var.sqlDb.subnet-name
-  virtual_network_name = var.sqlDb.vnet-name
-  resource_group_name  = var.sqlDb.vnet-rg
+data "azurerm_subnet" "private-endpoint-subnet" {
+  name                 = var.landingZone.subnet-name
+  virtual_network_name = var.landingZone.vnet-name
+  resource_group_name  = var.landingZone.resource-group-name
 }
 
-data "azurerm_private_dns_zone" "dns" {
+data "azurerm_private_dns_zone" "sql-dns" {
   name                 = var.sqlDb.dns-name
-  resource_group_name  = var.sqlDb.vnet-rg
+  resource_group_name  = var.landingZone.resource-group-name
 }
 
-data "azurerm_log_analytics_workspace" "example" {
-  name                = var.sqlDb.workspace-name
-  resource_group_name = var.sqlDb.vnet-rg
+data "azurerm_private_dns_zone" "redis-dns" {
+  name                 = var.redis.dns-name
+  resource_group_name  = var.landingZone.resource-group-name
+}
+
+data "azurerm_log_analytics_workspace" "logs" {
+  name                = var.landingZone.workspace-name
+  resource_group_name = var.landingZone.resource-group-name
 }
