@@ -52,7 +52,7 @@ module "gateway" {
 
   tags                           = local.tags
   location                       = var.location
-  resourceGroupId                = azurerm_resource_group.rg.id
+  resourceGroupId                = data.azurerm_resource_group.rg.id
 
   container-app-environment-id   = jsondecode(data.azapi_resource.containerapp_environment.output).id
 
@@ -86,7 +86,7 @@ module "gateway" {
         },
         {
             name = "redis-connection-string"
-            value = azurerm_redis_cache.caching.primary_connection_string
+            value = data.azurerm_redis_cache.caching.primary_connection_string
         }
       ]
       env = [ 

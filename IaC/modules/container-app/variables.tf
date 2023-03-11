@@ -38,8 +38,8 @@ variable "container-apps" {
     }))
     env = list(object({
         name = string
-        secretRef = string
-        value = string
+        secretRef = optional(string)
+        value = optional(string)
     }))
     registry = object({
         server = string

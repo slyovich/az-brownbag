@@ -87,9 +87,9 @@ module "sql" {
     name = var.sqlDb.name
     server-name = var.sqlDb.server-name
     
-    subnet-id = azurerm_subnet.private-endpoint-subnet.id
-    dns-id = azurerm_private_dns_zone.sql-dns.id
-    workspace-id = azurerm_log_analytics_workspace.logs.id
+    subnet-id = data.azurerm_subnet.private-endpoint-subnet.id
+    dns-id = data.azurerm_private_dns_zone.sql-dns.id
+    workspace-id = data.azurerm_log_analytics_workspace.logs.id
 
     admin = {
       username = var.sqlDb.admin.username

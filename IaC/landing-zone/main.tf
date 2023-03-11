@@ -74,7 +74,7 @@ module "keyvault" {
   tags                                    = local.tags
   location                                = var.location
   resourceGroupName                       = var.resourceGroupName
-  vault = {
+  keyvault = {
     name                                    = var.keyVault.name
     subnet-id                               = module.vnet.subnet[var.keyVault.subnet-key].id
     dns-id                                  = module.vnet.dns-zones[var.keyVault.dns-key].id
