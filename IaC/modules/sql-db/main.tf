@@ -27,7 +27,7 @@ resource "azurerm_private_endpoint" "app-server" {
   }
 
   private_service_connection {
-    name                           = "plssqlserver${replace(azurerm_key_vault.akv.name, "-", "")}"
+    name                           = "plssqlserver${replace(azurerm_mssql_server.app-server.name, "-", "")}"
     private_connection_resource_id = azurerm_mssql_server.app-server.id
     is_manual_connection           = false
     subresource_names              = ["sqlServer"]
