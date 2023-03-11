@@ -60,24 +60,6 @@ resource "azurerm_monitor_diagnostic_setting" "app-database" {
     }
   }
 
-  enabled_log {
-    category = "SqlRequests"
-
-    retention_policy {
-      days    = 0       # retain logs indifinitely
-      enabled = false
-    }
-  }
-
-  enabled_log {
-    category = "SQLSecurityAuditEvents"
-
-    retention_policy {
-      days    = 0       # retain logs indifinitely
-      enabled = false
-    }
-  }
-
   # ignore_changes is here given the bug I reported: https://github.com/terraform-providers/terraform-provider-azurerm/issues/10388
   lifecycle {
     ignore_changes = [enabled_log, metric]
