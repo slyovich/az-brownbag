@@ -14,8 +14,8 @@ variable "container-app-environment-id" {
   type = string
 }
 
-variable "container-apps" {
-  type = list(object({
+variable "container-app" {
+  type = object({
     name = string
     image-name = string
     image = string
@@ -85,5 +85,5 @@ variable "container-apps" {
         }
       ))
     })
-  }))
+  })
 }
