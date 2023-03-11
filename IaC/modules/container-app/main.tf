@@ -1,46 +1,50 @@
 resource "azapi_resource" "aca" {
-  for_each  = { for ca in var.container-apps: ca.name => ca}
   type      = "Microsoft.App/containerApps@2022-03-01"
   parent_id = var.resourceGroupId
   location  = var.location
-  name      = each.value.name
+  name      = var.container-app.name
   
   body = jsonencode({
     properties: {
       managedEnvironmentId = var.container-app-environment-id
       configuration = {
-        ingress = each.value.ingress
+        ingress = var.container-app.ingress
         dapr = {
-          enabled = each.value.dapr_enabled
-          appId =  each.value.dapr_enabled ? each.value.dapr_app_id : null
-          appPort = each.value.dapr_enabled ? each.value.dapr_app_port : null
-          appProtocol = each.value.dapr_enabled ? each.value.dapr_app_protocol : null
+          enabled = var.container-app.dapr.enabled
+          appId =  var.container-app.dapr.enabled ? var.container-app.dapr.app_id : null
+          appPort = var.container-app.dapr.enabled ? var.container-app.dapr.app_port : null
+          appProtocol = var.container-app.dapr.enabled ? var.container-app.dapr.app_protocol : null
         }
-        secrets = each.value.secrets
+        secrets = var.container-app.secrets
         registries = [
             {
-                server = each.value.registry.server
-                username = each.value.registry.username
-                passwordSecretRef = each.value.registry.passwordSecretRef
+                server = var.container-app.registry.server
+                username = var.container-app.registry.username
+                passwordSecretRef = var.container-app.registry.passwordSecretRef
             }
         ]
       }
       template = {
         containers = [
           {
-            name = each.value.image-name
-            image = "${each.value.image}:${each.value.tag}"
-            env = each.value.env
+            name = var.container-app.image-name
+            image = "${var.container-app.image}:${var.container-app.tag}"
+            env = var.container-app.env
             resources = {
-              cpu = each.value.cpu_requests
-              memory = each.value.mem_requests
+              cpu = var.container-app.cpu_requests
+              memory = var.container-app.mem_requests
             }
           }         
         ]
-        scale = each.value.scale
+        scale = var.container-app.scale
       }
     }
   })
+  
+  identity {
+    type = "SystemAssigned"
+  }
+  
 
   tags = var.tags
   

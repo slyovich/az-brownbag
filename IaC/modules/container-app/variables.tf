@@ -14,8 +14,8 @@ variable "container-app-environment-id" {
   type = string
 }
 
-variable "container-apps" {
-  type = list(object({
+variable "container-app" {
+  type = object({
     name = string
     image-name = string
     image = string
@@ -24,10 +24,12 @@ variable "container-apps" {
       external = bool
       targetPort = number
     })
-    dapr_enabled = bool
-    dapr_app_id = string
-    dapr_app_port = number
-    dapr_app_protocol = string  //http or grpc
+    dapr = object({
+      enabled = bool
+      app_id = string
+      app_port = number
+      app_protocol = string  //http or grpc  
+    })
     cpu_requests = number
     mem_requests = string
     secrets = list(object({
@@ -36,8 +38,8 @@ variable "container-apps" {
     }))
     env = list(object({
         name = string
-        secretRef = string
-        value = string
+        secretRef = optional(string)
+        value = optional(string)
     }))
     registry = object({
         server = string
@@ -76,9 +78,12 @@ variable "container-apps" {
                 triggerParameter = string
               }
             ))
+            metadata = object({
+              concurrentRequests = number
+            })
           }))
         }
       ))
     })
-  }))
+  })
 }

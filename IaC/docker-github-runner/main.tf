@@ -86,56 +86,73 @@ module "github-runner" {
   location                       = var.location
   resourceGroupId                = azurerm_resource_group.rg.id
   container-app-environment-id   = jsondecode(data.azapi_resource.containerapp_environment.output).id
-  container-apps = [
-    {
-      name = var.containerApp.name
-      image = var.containerApp.image
-      image-name = var.containerApp.image-name
-      tag = var.containerApp.tag
-      ingress = null
-      dapr_enabled = false
-      dapr_app_id = null
-      dapr_app_port = null
-      dapr_app_protocol = null
-      cpu_requests = 1.75
-      mem_requests = "3.5Gi"
-      secrets = [ 
-        {
-            name = "gh-token"
-            value = var.githubRunnerToken
-        },
-        {
-            name = "gh-registry-token"
-            value = var.githubRegistryToken
-        },
-        {
+  container-app = {
+    name = var.containerApp.name
+    image = var.containerApp.image
+    image-name = var.containerApp.image-name
+    tag = var.containerApp.tag
+    ingress = null
+    dapr = {
+      enabled = false
+      app_id = null
+      app_port = null
+      app_protocol = null
+    }
+    cpu_requests = 1.75
+    mem_requests = "3.5Gi"
+    secrets = [ 
+      {
+          name = "gh-token"
+          value = var.githubRunnerToken
+      },
+      {
+          name = "gh-registry-token"
+          value = var.githubRegistryToken
+      },
+      {
           name = "storage-connection-string"
           value = module.storage.storage-connection-string
+      }
+    ]
+    env = [ 
+      {
+          name = "GH_OWNER"
+          value = "slyovich"
+      },
+      {
+          name = "GH_REPOSITORY"
+          value = "az-brownbag"
+      },
+      {
+          name = "GH_TOKEN"
+          secretRef = "gh-token"
+      }
+    ]
+    registry = {
+      server = var.containerApp.registry.server
+      username = var.containerApp.registry.username
+      passwordSecretRef = "gh-registry-token"
+    }
+    scale = {
+      minReplicas = 0
+      maxReplicas = 3
+      rules = [
+        {
+          name = "queue-scaling"
+          azureQueue = {
+            queueName = local.queueName
+            queueLength = 1
+            auth = [
+              {
+                secretRef = "storage-connection-string"
+                triggerParameter = "connection"
+              }
+            ]
+          }
         }
       ]
-      env = var.containerApp.env
-      registry = var.containerApp.registry
-      scale = {
-        minReplicas = 0
-        maxReplicas = 3
-        rules = [
-          {
-            name = "queue-scaling"
-            azureQueue = {
-              queueName = local.queueName
-              queueLength = 1
-              auth = [
-                {
-                  secretRef = "storage-connection-string"
-                  triggerParameter = "connection"
-                }
-              ]
-            }
-          }
-        ]
-      }
     }
-  ]
+  }
 
   depends_on = [
     module.storage

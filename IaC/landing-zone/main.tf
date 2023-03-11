@@ -74,12 +74,14 @@ module "keyvault" {
   tags                                    = local.tags
   location                                = var.location
   resourceGroupName                       = var.resourceGroupName
-  keyvault-name                           = var.keyVault.name
-  subnet-id                               = module.vnet.subnet[var.keyVault.subnet-key].id
-  dns-id                                  = module.vnet.dns-zones[var.keyVault.dns-key].id
-  dns-name                                = module.vnet.dns-zones[var.keyVault.dns-key].name
-  workspace-id                            = module.monitoring.workspace_id
-  tenant-id                               = data.azurerm_client_config.current.tenant_id
+  keyvault = {
+    name                                    = var.keyVault.name
+    subnet-id                               = module.vnet.subnet[var.keyVault.subnet-key].id
+    dns-id                                  = module.vnet.dns-zones[var.keyVault.dns-key].id
+    workspace-id                            = module.monitoring.workspace_id
+    tenant-id                               = data.azurerm_client_config.current.tenant_id
+  }
+
   key-vault-default-officer-principal-id  = data.azurerm_client_config.current.object_id
 
   depends_on = [

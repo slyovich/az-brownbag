@@ -1,0 +1,128 @@
+name: App_Storages_Workflow
+
+on:
+  pull_request:
+    branches:
+      - 'main'
+    paths:
+      - '.github/workflows/app-storages.yml'
+      - 'IaC/app/main.tf'
+      - 'IaC/app/variables.tf'
+      - 'IaC/modules/redis/**'
+      - 'IaC/modules/sql-db/**'
+  push:
+    branches:
+      - 'main'
+    paths:
+      - '.github/workflows/app-storages.yml'
+      - 'IaC/app/main.tf'
+      - 'IaC/app/variables.tf'
+      - 'IaC/modules/redis/**'
+      - 'IaC/modules/sql-db/**'
+  workflow_dispatch:
+
+env:
+  ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+  ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+  ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+  ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+  keyFile: "app-storages.terraform.tfstate"
+  working-directory: ./IaC/app
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write # for github/codeql-action/upload-sarif to upload SARIF results
+      pull-requests: write # Required to post comments
+
+    environment: demo
+    defaults:
+      run:
+        working-directory: ${{ env.working-directory }}
+
+    steps:
+    - uses: actions/checkout@v3.0.2
+    
+    - name: Install Terraform
+      uses: hashicorp/setup-terraform@v2.0.0
+
+    - name: "Login via Azure CLI"
+      uses: azure/login@v1.4.5
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: Terraform init
+      run: |
+        terraform init \
+          -backend-config="resource_group_name=${{ vars.TFSTATE_RESOURCE_GROUP_NAME }}" \
+          -backend-config="storage_account_name=${{ vars.TFSTATE_STORAGE_ACCOUNT_NAME }}" \
+          -backend-config="container_name=${{ vars.TFSTATE_CONTAINER_NAME }}" \
+          -backend-config="key=${{ env.keyFile }}"
+
+    - name: Terraform validate
+      run: terraform validate
+
+    - name: Terraform plan
+      run: terraform plan -out=tfplan.out
+      env:
+        TF_VAR_location: ${{ vars.TF_VAR_location }}
+        TF_VAR_resourceGroupName: ${{ vars.TF_VAR_App_ResourceGroupName }}
+        TF_VAR_landingZone: ${{ vars.TF_VAR_landingZone }}
+        TF_VAR_sqlDb: ${{ vars.TF_VAR_sqlDb }}
+        TF_VAR_sqlDbAdminPassword: ${{ secrets.sqlDb_Admin_Password }}
+        TF_VAR_redis: ${{ vars.TF_VAR_redis }}
+
+    - name: Transform plan to json
+      if: github.event_name == 'pull_request'
+      run: terraform show -json tfplan.out > tfplan.json
+
+    - name: Checkov GitHub Action
+      if: github.event_name == 'pull_request'
+      uses: bridgecrewio/checkov-action@v12
+      with:
+        file: ${{ env.working-directory }}/tfplan.json
+        output_format: cli,sarif
+        output_file_path: console,results.sarif
+        quiet: true # optional: display only failed checks
+        soft_fail: true # optional: do not return an error code if there are failed checks
+      
+    - name: Upload SARIF file
+      uses: github/codeql-action/upload-sarif@v2
+      # Results are generated only on a success or failure
+      # this is required since GitHub by default won't run the next step
+      # when the previous one has failed. Security checks that do not pass will 'fail'.
+      # An alternative is to add `continue-on-error: true` to the previous step
+      # Or 'soft_fail: true' to checkov.
+      if: (success() || failure()) && github.event_name == 'pull_request'
+      with:
+        sarif_file: results.sarif
+
+    - name: Setup Infracost
+      if: (success() || failure()) && github.event_name == 'pull_request'
+      uses: infracost/actions/setup@v2
+      with:
+        api-key: ${{ secrets.INFRACOST_API_KEY }}
+        currency: CHF
+
+    # Generate Infracost JSON file as the baseline.
+    - name: Generate Infracost cost estimate baseline
+      if: (success() || failure()) && github.event_name == 'pull_request'
+      run: |
+        infracost breakdown --path=tfplan.json \
+                            --format=json \
+                            --out-file=/tmp/infracost.json
+
+    - name: Post Infracost comment
+      if: (success() || failure()) && github.event_name == 'pull_request'
+      run: |
+        infracost comment github --path=/tmp/infracost.json \
+                                 --repo=$GITHUB_REPOSITORY \
+                                 --github-token=${{github.token}} \
+                                 --pull-request=${{github.event.pull_request.number}} \
+                                 --behavior=update
+
+    - name: Terraform apply
+      if: success() && github.event_name != 'pull_request'
+      run: terraform apply tfplan.out

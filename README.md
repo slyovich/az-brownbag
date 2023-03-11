@@ -122,9 +122,9 @@ As the Azure Container App hosting the GitHub Runner uses auto-scaling rules bas
 ## Deploy the application and its hosting infrastructure
 - Pipeline: Terraform (sql, redis, aca, front door) + code
 - Set ACA managed identity
+- Set SQL access to ACA managed identity (https://stackoverflow.com/questions/65544011/howto-add-db-owner-to-azure-sql-server-database-in-github-action / https://dev.to/maxx_don/configure-secret-less-connection-from-app-services-to-azure-sql-via-terraform-2jbg)
 - Grant access to Key Vault to ACA managed identity
-- Use KeyVault secrets to create ACA secrets
-    End of march, public preview (https://github.com/microsoft/azure-container-apps/issues/608)
+- Use KeyVault secrets to create ACA secrets. End of march, public preview (https://github.com/microsoft/azure-container-apps/issues/608)
 
 One container for
 - BFF (with ingress)

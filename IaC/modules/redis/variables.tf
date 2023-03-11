@@ -10,16 +10,15 @@ variable "resourceGroupName" {
   type = string
 }
 
-variable "keyvault" {
+variable "redis" {
   type = object({
     name = string
+    sku = object({
+        name = string
+        family = string
+        capacity = string
+    })
     subnet-id = string
     dns-id = string
-    workspace-id = string
-    tenant-id = string
   })
-}
-
-variable "key-vault-default-officer-principal-id" {
-  type = string
 }

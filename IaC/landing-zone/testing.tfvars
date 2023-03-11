@@ -61,6 +61,7 @@ subnets = {
 dns = {
     "sql" = "privatelink.database.windows.net",
     "keyvault" = "privatelink.vaultcore.azure.net"
+    "redis" = "privatelink.redis.cache.windows.net"
 }
 
 workspaceName = "logs-demo-brownbag-01"

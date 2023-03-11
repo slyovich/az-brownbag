@@ -1,9 +1,9 @@
 resource "azurerm_key_vault" "akv" {
-    name                          = var.keyvault-name
+    name                          = var.keyvault.name
     location                      = var.location
     resource_group_name           = var.resourceGroupName
     sku_name                      = "standard"
-    tenant_id                     = var.tenant-id
+    tenant_id                     = var.keyvault.tenant-id
     enable_rbac_authorization     = true
     purge_protection_enabled      = true
 
@@ -16,11 +16,11 @@ resource "azurerm_private_endpoint" "akv" {
   name                   = "pevault${replace(azurerm_key_vault.akv.name, "-", "")}"
   location               = var.location
   resource_group_name    = var.resourceGroupName
-  subnet_id              = var.subnet-id
+  subnet_id              = var.keyvault.subnet-id
   
   private_dns_zone_group {
     name                 = "default"
-    private_dns_zone_ids = [var.dns-id]
+    private_dns_zone_ids = [var.keyvault.dns-id]
   }
 
   private_service_connection {
@@ -34,7 +34,7 @@ resource "azurerm_private_endpoint" "akv" {
 resource "azurerm_monitor_diagnostic_setting" "akv" {
   name                          = "DiagLogAnalytics"
   target_resource_id            = azurerm_key_vault.akv.id
-  log_analytics_workspace_id    = var.workspace-id
+  log_analytics_workspace_id    = var.keyvault.workspace-id
 
   enabled_log {
     category = "AuditEvent"
