@@ -68,7 +68,7 @@ jobs:
       run: terraform plan -out=tfplan.out
       env:
         TF_VAR_location: ${{ vars.TF_VAR_location }}
-        TF_VAR_resourceGroupName: ${{ vars.TF_VAR_LandingZone_ResourceGroupName }}
+        TF_VAR_resourceGroupName: ${{ vars.TF_VAR_App_ResourceGroupName }}
         TF_VAR_landingZone: ${{ vars.TF_VAR_landingZone }}
         TF_VAR_sqlDb: ${{ vars.TF_VAR_sqlDb }}
         TF_VAR_sqlDbAdminPassword: ${{ secrets.sqlDb_Admin_Password }}
