@@ -21,11 +21,5 @@ variable "sql-db" {
       username = string
       password = string
     })
-    managed-identity = object({
-      type = object({
-        name = string
-        principal-id = string
-      })
-    })
   })
 }

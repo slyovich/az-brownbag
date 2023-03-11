@@ -46,22 +46,6 @@ resource "azurerm_mssql_database" "app-database" {
   tags           = var.tags
 }
 
-resource "mssql_user" "web" {
-  server {
-    host = azurerm_mssql_server.app-server.fully_qualified_domain_name
-    login {
-      username     = var.sql-db.admin.username
-      password     = var.sql-db.admin.password
-    }
-  }
-  
-  database  = azurerm_mssql_database.app-database.name
-  username  = var.sql-db.managed-identity.name
-  object_id = var.sql-db.managed-identity.principal-id
-
-  roles     = ["db_datareader", "db_datawriter"]
-}
-
 resource "azurerm_monitor_diagnostic_setting" "app-database" {
   name                          = "DiagLogAnalytics"
   target_resource_id            = azurerm_mssql_database.app-database.id

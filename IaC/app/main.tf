@@ -30,7 +30,6 @@ locals {
     Application = "demo"
     Scope = "Application"
   }
-  sql_dbconnection_string = "Server=${var.sqlDb.server-name}.database.windows.net; Authentication=Active Directory Default; Database=${var.sqlDb.name};MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;Persist Security Info=False;"
 }
 
 # Create Resource group
@@ -39,13 +38,6 @@ resource "azurerm_resource_group" "rg" {
   location = var.location
 
   tags = local.tags
-}
-
-#random_password.password.result
-resource "random_password" "password" {
-  length           = 16
-  special          = true
-  override_special = "!#$%&*()-_=+[]{}<>:?"
 }
 
 data "azurerm_subnet" "private-endpoint-subnet" {
@@ -69,25 +61,39 @@ data "azurerm_log_analytics_workspace" "logs" {
   resource_group_name = var.landingZone.resource-group-name
 }
 
-data "azapi_resource" "containerapp_environment" {
-  type      = "Microsoft.App/managedEnvironments@2022-03-01"
-  name      = var.containerAppEnvironment.name
-  parent_id = data.azurerm_resource_group.landing-zone.id
-  
-  response_export_values  = ["id"]
-}
-
 module "redis" {
   source = "../modules/redis"
 
   tags                           = local.tags
   location                       = var.location
-  resourceGroupName              = azurerm_resource_group.rg
+  resourceGroupName              = azurerm_resource_group.rg.name
 
   redis = {
     name = var.redis.name
     sku = var.redis.sku
     subnet-id = data.azurerm_subnet.private-endpoint-subnet.id
     dns-id = data.azurerm_private_dns_zone.redis-dns.id
+  }
+}
+
+module "sql" {
+  source = "../modules/sql-db"
+
+  tags                           = local.tags
+  location                       = var.location
+  resourceGroupName              = azurerm_resource_group.rg.name
+
+  sql-db = {
+    name = var.sqlDb.name
+    server-name = var.sqlDb.server-name
+    
+    subnet-id = azurerm_subnet.private-endpoint-subnet.id
+    dns-id = azurerm_private_dns_zone.sql-dns.id
+    workspace-id = azurerm_log_analytics_workspace.logs.id
+
+    admin = {
+      username = var.sqlDb.admin.username
+      password = var.sqlDbAdminPassword
+    }
   }
 }
