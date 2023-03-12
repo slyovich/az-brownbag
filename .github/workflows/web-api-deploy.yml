@@ -39,22 +39,11 @@ jobs:
     steps:
     - uses: actions/checkout@v3.0.2
 
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v3
-      with:
-        dotnet-version: 6.0.x
-    
-    - name: Install dependencies
-      run: dotnet restore
-
-    - name: Build
-      run: dotnet build --configuration Release --no-restore
-
     - name: Compute container repository name
       run: |
         echo "CONTAINER_IMAGE_REPOSITORY=${GITHUB_REPOSITORY,,}" >> ${GITHUB_ENV}
 
-    - name: Build
+    - name: Build image
       run: |
         docker build -t ghcr.io/${{ env.CONTAINER_IMAGE_REPOSITORY }}/${{ env.IMAGE_NAME }}:${{ github.sha }} .
     

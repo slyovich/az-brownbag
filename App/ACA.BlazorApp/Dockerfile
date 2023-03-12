@@ -1,10 +1,11 @@
 ﻿FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
 WORKDIR /src
 
-COPY ["ACA.BlazorApp/ACA.BlazorApp.csproj", "ACA.BlazorApp/"]
+COPY ["ACA.BlazorApp.csproj", "ACA.BlazorApp/"]
 RUN dotnet restore "ACA.BlazorApp/ACA.BlazorApp.csproj"
-COPY . .
+
 WORKDIR "/src/ACA.BlazorApp"
+COPY . .
 RUN dotnet build "ACA.BlazorApp.csproj" -c Release -o /app/build
 
 FROM build AS publish

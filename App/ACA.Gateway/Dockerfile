@@ -10,8 +10,9 @@ FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
 WORKDIR /src
 COPY ["ACA.Gateway.csproj", "ACA.Gateway/"]
 RUN dotnet restore "ACA.Gateway/ACA.Gateway.csproj"
-COPY . .
+
 WORKDIR "/src/ACA.Gateway"
+COPY . .
 RUN dotnet build "ACA.Gateway.csproj" -c Release -o /app/build
 
 FROM build AS publish

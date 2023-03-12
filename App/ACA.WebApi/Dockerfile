@@ -10,8 +10,9 @@ FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
 WORKDIR /src
 COPY ["ACA.WebApi.csproj", "ACA.WebApi/"]
 RUN dotnet restore "ACA.WebApi/ACA.WebApi.csproj"
-COPY . .
+
 WORKDIR "/src/ACA.WebApi"
+COPY . .
 RUN dotnet build "ACA.WebApi.csproj" -c Release -o /app/build
 
 FROM build AS publish
