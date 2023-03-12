@@ -8,7 +8,7 @@ EXPOSE 443
 
 FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
 WORKDIR /src
-COPY ["ACA.Gateway/ACA.Gateway.csproj", "ACA.Gateway/"]
+COPY ["ACA.Gateway.csproj", "ACA.Gateway/"]
 RUN dotnet restore "ACA.Gateway/ACA.Gateway.csproj"
 COPY . .
 WORKDIR "/src/ACA.Gateway"
