@@ -23,21 +23,12 @@ variable "sqlDb" {
     dns-name = string
     admin = object({
         username = string
-        object-id = string
     })
   })
 }
 
-variable "redis" {
-  type = object({
-    name = string
-    sku = object({
-        name = string
-        family = string
-        capacity = string
-    })
-    dns-name = string
-  })
+variable "sqlDbAdminPassword" {
+  type = string
 }
 
 variable "containerAppEnvironment" {
@@ -52,17 +43,15 @@ variable "githubRegistryToken" {
   description = "Token used to fetch the container image from GitHub Packages"
 }
 
-variable "gatewayAppConfig" {
+variable "webApiAppConfig" {
   type = object({
+    domain = string
+    tenant-id = string
     client-id = string
-    client-secret = string
-    authority = string
-    scopes = string
-    backend-api-scope = string
   })
 }
 
-variable "gateway" {
+variable "webApi" {
   type = object({
     name = string
     registry = object({

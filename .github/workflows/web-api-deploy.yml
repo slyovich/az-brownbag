@@ -1,0 +1,225 @@
+name: web_api_Workflow
+
+on:
+  pull_request:
+    branches:
+      - 'main'
+    paths:
+      - '.github/workflows/web-api-deploy.yml'
+      - 'IaC/app/webapi/**'
+      - 'IaC/modules/container-app/**'
+      - 'App/ACA.WebApi/**'
+  push:
+    branches:
+      - 'main'
+    paths:
+      - '.github/workflows/web-api-deploy.yml'
+      - 'IaC/app/webapi/**'
+      - 'IaC/modules/container-app/**'
+      - 'App/ACA.WebApi/**'
+  workflow_dispatch:
+
+env:
+  ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+  ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+  ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+  ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+  keyFile: "github-runner.terraform.tfstate"
+  working-directory: ./IaC/app/webapi
+  AZ_STORAGE_ACCOUNT: asademobrownbag01
+  AZ_QUEUE_NAME: gh-runner-scaler
+  IMAGE_NAME: webapi
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest 
+    defaults:
+      run:
+        working-directory: ./App/ACA.WebApi
+    steps:
+    - uses: actions/checkout@v3.0.2
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: 6.0.x
+    
+    - name: Install dependencies
+      run: dotnet restore
+
+    - name: Build
+      run: dotnet build --configuration Release --no-restore
+
+    - name: Compute container repository name
+      run: |
+        echo "CONTAINER_IMAGE_REPOSITORY=${GITHUB_REPOSITORY,,}" >> ${GITHUB_ENV}
+
+    - name: Build
+      run: |
+        docker build -t ghcr.io/${{ env.CONTAINER_IMAGE_REPOSITORY }}/${{ env.IMAGE_NAME }}:${{ github.sha }} .
+    
+    - name: "Vulnerability scan container image with Trivy"
+      uses: aquasecurity/trivy-action@master
+      with:
+        image-ref: ghcr.io/${{ env.CONTAINER_IMAGE_REPOSITORY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+        format: 'sarif'
+        output: 'trivy-results.sarif'
+        severity: 'CRITICAL,HIGH'
+
+    - name: Upload Trivy scan results to GitHub Security tab
+      uses: github/codeql-action/upload-sarif@v2
+      with:
+        sarif_file: 'trivy-results.sarif'
+
+    - name: Log in to GitHub Container Registry
+      if: github.event_name != 'pull_request'
+      uses: docker/login-action@v2
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Push container image
+      if: github.event_name != 'pull_request'
+      run: |
+        docker push ghcr.io/${{ env.CONTAINER_IMAGE_REPOSITORY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+
+  scale-keda-queue-out:
+    needs: build-and-publish
+    runs-on: ubuntu-latest 
+    steps:
+    - name: "Login via Azure CLI"
+      uses: azure/login@v1.4.5
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: scale out self hosted
+      id: scaleJob
+      run: |
+        OUTPUT=$(az storage message put --queue-name "${{ env.AZ_QUEUE_NAME }}" --content "${{ github.run_id }}" --account-name "${{ env.AZ_STORAGE_ACCOUNT }}" --auth-mode login)
+        echo "::set-output name=scaleJobId::$(echo "$OUTPUT" | grep "id" | sed 's/^.*: //' | sed 's/,*$//g')"
+        echo "::set-output name=scaleJobPop::$(echo "$OUTPUT" | grep "popReceipt" | sed 's/^.*: //' | sed 's/,*$//g')"
+    outputs:
+      scaleJobId: ${{ steps.scaleJob.outputs.scaleJobId }}
+      scaleJobPop: ${{ steps.scaleJob.outputs.scaleJobPop }}
+
+  deploy:
+    needs: scale-keda-queue-out
+    runs-on: [self-hosted]
+    permissions:
+      contents: read
+      security-events: write # for github/codeql-action/upload-sarif to upload SARIF results
+      pull-requests: write # Required to post comments
+
+    environment: demo
+    defaults:
+      run:
+        working-directory: ${{ env.working-directory }}
+
+    steps:
+    - uses: actions/checkout@v3.0.2
+
+    - name: Compute container repository name
+      run: |
+        echo "CONTAINER_IMAGE_REPOSITORY=${GITHUB_REPOSITORY,,}" >> ${GITHUB_ENV}
+    
+    - name: Install Terraform
+      uses: hashicorp/setup-terraform@v2.0.0
+
+    - name: "Login via Azure CLI"
+      uses: azure/login@v1.4.5
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: Terraform init
+      run: |
+        terraform init \
+          -backend-config="resource_group_name=${{ vars.TFSTATE_RESOURCE_GROUP_NAME }}" \
+          -backend-config="storage_account_name=${{ vars.TFSTATE_STORAGE_ACCOUNT_NAME }}" \
+          -backend-config="container_name=${{ vars.TFSTATE_CONTAINER_NAME }}" \
+          -backend-config="key=${{ env.keyFile }}"
+
+    - name: Terraform validate
+      run: terraform validate
+    
+    - name: Terraform plan
+      run: terraform plan -out=tfplan.out
+      env:
+        TF_VAR_location: ${{ vars.TF_VAR_location }}
+        TF_VAR_resourceGroupName: ${{ vars.TF_VAR_GitHubRunner_ResourceGroupName }}
+        TF_VAR_landingZone: ${{ vars.TF_VAR_landingZone }}
+        TF_VAR_sqlDb: ${{ vars.TF_VAR_sqlDb }}
+        TF_VAR_sqlDbAdminPassword: ${{ secrets.sqlDb_Admin_Password }}
+        TF_VAR_containerAppEnvironment: ${{ vars.TF_VAR_containerAppEnvironment_Reference }}
+        TF_VAR_githubRegistryToken: ${{ secrets.REGISTRY_PAT_TOKEN }}
+        TF_VAR_webApiAppConfig: ${{ vars.TF_VAR_webApiAppConfig }}
+        TF_VAR_webApi: ${{ vars.TF_VAR_webApiContainerApp }}
+        TF_VAR_imageName: ${{ env.IMAGE_NAME }}
+        TF_VAR_image: ghcr.io/${{ env.CONTAINER_IMAGE_REPOSITORY }}/${{ env.IMAGE_NAME }}
+        TF_VAR_imageTag: ${{ github.sha }}
+
+    - name: Transform plan to json
+      if: github.event_name == 'pull_request'
+      run: terraform show -json tfplan.out > tfplan.json
+
+    - name: Checkov GitHub Action
+      if: github.event_name == 'pull_request'
+      uses: bridgecrewio/checkov-action@v12
+      with:
+        file: ${{ env.working-directory }}/tfplan.json
+        output_format: cli,sarif
+        output_file_path: console,results.sarif
+        quiet: true # optional: display only failed checks
+        soft_fail: true # optional: do not return an error code if there are failed checks
+      
+    - name: Upload SARIF file
+      uses: github/codeql-action/upload-sarif@v2
+      # Results are generated only on a success or failure
+      # this is required since GitHub by default won't run the next step
+      # when the previous one has failed. Security checks that do not pass will 'fail'.
+      # An alternative is to add `continue-on-error: true` to the previous step
+      # Or 'soft_fail: true' to checkov.
+      if: (success() || failure()) && github.event_name == 'pull_request'
+      with:
+        sarif_file: results.sarif
+
+    - name: Setup Infracost
+      if: (success() || failure()) && github.event_name == 'pull_request'
+      uses: infracost/actions/setup@v2
+      with:
+        api-key: ${{ secrets.INFRACOST_API_KEY }}
+        currency: CHF
+
+    # Generate Infracost JSON file as the baseline.
+    - name: Generate Infracost cost estimate baseline
+      if: (success() || failure()) && github.event_name == 'pull_request'
+      run: |
+        infracost breakdown --path=tfplan.json \
+                            --format=json \
+                            --out-file=/tmp/infracost.json
+
+    - name: Post Infracost comment
+      if: (success() || failure()) && github.event_name == 'pull_request'
+      run: |
+        infracost comment github --path=/tmp/infracost.json \
+                                 --repo=$GITHUB_REPOSITORY \
+                                 --github-token=${{github.token}} \
+                                 --pull-request=${{github.event.pull_request.number}} \
+                                 --behavior=update
+
+    - name: Terraform apply
+      if: success() && github.event_name != 'pull_request'
+      run: terraform apply tfplan.out
+
+  scale-keda-queue-in:
+    needs: deploy
+    runs-on: ubuntu-latest 
+    steps:
+    - name: "Login via Azure CLI"
+      uses: azure/login@v1.4.5
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: scale in self hosted
+      run: |
+        az storage message delete --id ${{needs.scale-keda-queue-out.outputs.scaleJobId}} --pop-receipt ${{needs.scale-keda-queue-out.outputs.scaleJobPop}} --queue-name "${{ env.AZ_QUEUE_NAME }}" --account-name "${{ env.AZ_STORAGE_ACCOUNT }}" --auth-mode login
