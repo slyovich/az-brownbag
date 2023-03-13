@@ -24,7 +24,7 @@ env:
   ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
   ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
   ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
-  keyFile: "github-runner.terraform.tfstate"
+  keyFile: "webapi.terraform.tfstate"
   working-directory: ./IaC/app/webapi
   AZ_STORAGE_ACCOUNT: asademobrownbag01
   AZ_QUEUE_NAME: gh-runner-scaler
@@ -73,28 +73,20 @@ jobs:
       run: |
         docker push ghcr.io/${{ env.CONTAINER_IMAGE_REPOSITORY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
 
-  scale-keda-queue-out:
-    needs: build-and-publish
-    runs-on: ubuntu-latest 
-    steps:
-    - name: "Login via Azure CLI"
-      uses: azure/login@v1.4.5
-      with:
-        creds: ${{ secrets.AZURE_CREDENTIALS }}
-
-    - name: scale out self hosted
-      id: scaleJob
-      run: |
-        OUTPUT=$(az storage message put --queue-name "${{ env.AZ_QUEUE_NAME }}" --content "${{ github.run_id }}" --account-name "${{ env.AZ_STORAGE_ACCOUNT }}" --auth-mode login)
-        echo "::set-output name=scaleJobId::$(echo "$OUTPUT" | grep "id" | sed 's/^.*: //' | sed 's/,*$//g')"
-        echo "::set-output name=scaleJobPop::$(echo "$OUTPUT" | grep "popReceipt" | sed 's/^.*: //' | sed 's/,*$//g')"
-    outputs:
-      scaleJobId: ${{ steps.scaleJob.outputs.scaleJobId }}
-      scaleJobPop: ${{ steps.scaleJob.outputs.scaleJobPop }}
-
   check-infrastructure:
     if: github.event_name == 'pull_request'
+    needs: build-and-publish
     runs-on: ubuntu-latest 
+    permissions:
+      contents: read
+      security-events: write # for github/codeql-action/upload-sarif to upload SARIF results
+      pull-requests: write # Required to post comments
+
+    environment: demo
+    defaults:
+      run:
+        working-directory: ${{ env.working-directory }}
+
     steps:
     - uses: actions/checkout@v3.0.2
 
@@ -125,7 +117,7 @@ jobs:
       run: terraform plan -out=tfplan.out
       env:
         TF_VAR_location: ${{ vars.TF_VAR_location }}
-        TF_VAR_resourceGroupName: ${{ vars.TF_VAR_GitHubRunner_ResourceGroupName }}
+        TF_VAR_resourceGroupName: ${{ vars.TF_VAR_App_ResourceGroupName }}
         TF_VAR_landingZone: ${{ vars.TF_VAR_landingZone }}
         TF_VAR_sqlDb: ${{ vars.TF_VAR_sqlDb }}
         TF_VAR_sqlDbAdminPassword: ${{ secrets.sqlDb_Admin_Password }}
@@ -186,15 +178,31 @@ jobs:
                                  --pull-request=${{github.event.pull_request.number}} \
                                  --behavior=update
   
+  scale-keda-queue-out:
+    if: github.event_name != 'pull_request'
+    needs: build-and-publish
+    runs-on: ubuntu-latest 
+    steps:
+    - name: "Login via Azure CLI"
+      uses: azure/login@v1.4.5
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: scale out self hosted
+      id: scaleJob
+      run: |
+        OUTPUT=$(az storage message put --queue-name "${{ env.AZ_QUEUE_NAME }}" --content "${{ github.run_id }}" --account-name "${{ env.AZ_STORAGE_ACCOUNT }}" --auth-mode login)
+        echo "::set-output name=scaleJobId::$(echo "$OUTPUT" | grep "id" | sed 's/^.*: //' | sed 's/,*$//g')"
+        echo "::set-output name=scaleJobPop::$(echo "$OUTPUT" | grep "popReceipt" | sed 's/^.*: //' | sed 's/,*$//g')"
+    outputs:
+      scaleJobId: ${{ steps.scaleJob.outputs.scaleJobId }}
+      scaleJobPop: ${{ steps.scaleJob.outputs.scaleJobPop }}
+
   deploy:
     if: github.event_name != 'pull_request'
     needs: scale-keda-queue-out
     runs-on: [self-hosted]
-    permissions:
-      contents: read
-      security-events: write # for github/codeql-action/upload-sarif to upload SARIF results
-      pull-requests: write # Required to post comments
-
+    
     environment: demo
     defaults:
       run:
@@ -230,7 +238,7 @@ jobs:
       run: terraform plan -out=tfplan.out
       env:
         TF_VAR_location: ${{ vars.TF_VAR_location }}
-        TF_VAR_resourceGroupName: ${{ vars.TF_VAR_GitHubRunner_ResourceGroupName }}
+        TF_VAR_resourceGroupName: ${{ vars.TF_VAR_App_ResourceGroupName }}
         TF_VAR_landingZone: ${{ vars.TF_VAR_landingZone }}
         TF_VAR_sqlDb: ${{ vars.TF_VAR_sqlDb }}
         TF_VAR_sqlDbAdminPassword: ${{ secrets.sqlDb_Admin_Password }}
@@ -246,8 +254,8 @@ jobs:
       run: terraform apply tfplan.out
 
   scale-keda-queue-in:
-    if: ${{ always() }}
-    needs: [check-infrastructure, deploy]
+    if: github.event_name != 'pull_request'
+    needs: [scale-keda-queue-out, deploy]
     runs-on: ubuntu-latest 
     steps:
     - name: "Login via Azure CLI"

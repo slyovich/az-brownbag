@@ -9,6 +9,10 @@ terraform {
     azapi = {
       source  = "azure/azapi"
     }
+    mssql = {
+      source  = "betr-io/mssql"
+      version = "0.2.4"
+    }
   }
   
   backend "azurerm" { }
@@ -20,6 +24,8 @@ provider "azurerm" {
 }
 
 provider "azapi" { }
+
+provider "mssql" { }
 
 locals {
   tags = {
@@ -114,7 +120,7 @@ module "webapi" {
           name = "http-scaling"
           http = {
               metadata = {
-                  concurrentRequests = 50
+                  concurrentRequests = "50"
               }
           }
         }
@@ -123,23 +129,23 @@ module "webapi" {
   }
 }
 
-resource "azurerm_mssql_server" "app-server" {
+data "azurerm_mssql_server" "app-server" {
   name                                 = var.sqlDb.server-name
-  resource_group_name                  = var.resourceGroupName
+  resource_group_name                  = data.azurerm_resource_group.rg.name
 }
 
 resource "mssql_user" "web" {
   server {
-    host = azurerm_mssql_server.app-server.fully_qualified_domain_name
+    host = data.azurerm_mssql_server.app-server.fully_qualified_domain_name
     login {
       username     = var.sqlDb.admin.username
       password     = var.sqlDbAdminPassword
     }
   }
   
-  database  = azurerm_mssql_database.app-database.name
+  database  = var.sqlDb.name
   username  = var.webApi.name
-  object_id = module.webApi.container-app-principal-id
+  object_id = module.webapi.container-app-principal-id
 
   roles     = ["db_datareader", "db_datawriter"]
 }

@@ -72,14 +72,14 @@ variable "container-app" {
             type = string
           }))
           http = optional(object({
-            auth = list(object(
+            auth = optional(list(object(
               {
                 secretRef = string
                 triggerParameter = string
               }
-            ))
+            )))
             metadata = object({
-              concurrentRequests = number
+              concurrentRequests = string
             })
           }))
         }
