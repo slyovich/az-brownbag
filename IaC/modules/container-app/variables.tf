@@ -79,7 +79,7 @@ variable "container-app" {
               }
             )))
             metadata = object({
-              concurrentRequests = number
+              concurrentRequests = string
             })
           }))
         }

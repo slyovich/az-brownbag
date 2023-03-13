@@ -120,7 +120,7 @@ module "webapi" {
           name = "http-scaling"
           http = {
               metadata = {
-                  concurrentRequests = 50
+                  concurrentRequests = "50"
               }
           }
         }
