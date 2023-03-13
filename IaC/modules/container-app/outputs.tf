@@ -1,3 +1,3 @@
 output "container-app-principal-id" {
-  value = jsondecode(azapi_resource.aca.output).identity.principalId
+  value = azapi_resource.aca.identity.0.principal_id
 }
