@@ -248,7 +248,7 @@ jobs:
 
   scale-keda-queue-in:
     if: ${{ always() }}
-    needs: [check-infrastructure, deploy]
+    needs: [scale-keda-queue-out, check-infrastructure, deploy]
     runs-on: ubuntu-latest 
     steps:
     - name: "Login via Azure CLI"
