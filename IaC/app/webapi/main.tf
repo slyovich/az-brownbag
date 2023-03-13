@@ -26,6 +26,7 @@ locals {
     Application = "demo"
     Scope = "Application"
   }
+  sql_dbconnection_string = "Server=${var.sqlDb.server-name}.database.windows.net; Authentication=Active Directory Default; Database=${var.sqlDb.name};MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;Persist Security Info=False;"
 }
 
 # Get current Resource group
@@ -38,11 +39,6 @@ data "azurerm_resource_group" "landing-zone" {
   name     = var.landingZone.resource-group-name
 }
 
-data "azurerm_redis_cache" "caching" {
-  name                = var.redis.name
-  resource_group_name = var.resourceGroupName
-}
-
 data "azapi_resource" "containerapp_environment" {
   type      = "Microsoft.App/managedEnvironments@2022-03-01"
   name      = var.containerAppEnvironment.name
@@ -51,7 +47,7 @@ data "azapi_resource" "containerapp_environment" {
   response_export_values  = ["id"]
 }
 
-module "gateway" {
+module "webapi" {
   source = "../../modules/container-app"
 
   tags                           = local.tags
@@ -61,17 +57,17 @@ module "gateway" {
   container-app-environment-id   = jsondecode(data.azapi_resource.containerapp_environment.output).id
 
   container-app = {
-    name = var.gateway.name
+    name = var.webApi.name
     image = var.image
     image-name = var.imageName
     tag = var.imageTag
     ingress = {
-      external = true
+      external = false
       targetPort = 80
     }
     dapr = {
       enabled = true
-      app_id = "gateway"
+      app_id = "webapi"
       app_port = 80
       app_protocol = "http"
     }
@@ -83,55 +79,31 @@ module "gateway" {
           value = var.githubRegistryToken
       },
       {
-          name = "client-secret"
-          value = var.gatewayAppConfig.client-secret
-      },
-      {
-          name = "redis-connection-string"
-          value = data.azurerm_redis_cache.caching.primary_connection_string
+          name = "sql-connection-string"
+          value = local.sql_dbconnection_string
       }
     ]
     env = [ 
       {
-          name = "OpenIdConnect__Authority"
-          value = var.gatewayAppConfig.authority
+          name = "AzureAd__Domain"
+          value = var.webApiAppConfig.domain
       },
       {
-          name = "OpenIdConnect__ClientId"
-          value = var.gatewayAppConfig.client-id
+          name = "AzureAd__TenantId"
+          value = var.webApiAppConfig.tenant-id
       },
       {
-          name = "OpenIdConnect__ClientSecret"
-          secretRef = "client-secret"
+          name = "AzureAd__ClientId"
+          value = var.webApiAppConfig.client-id
       },
       {
-          name = "OpenIdConnect__Scopes"
-          value = var.gatewayAppConfig.scopes
-      },
-      {
-          name = "Apis__0__ApiScopes"
-          value = var.gatewayAppConfig.backend-api-scope
-      },
-      {
-          name = "ReverseProxy__Clusters__blazorapp__Destinations__destination1__Address"
-          value = "http://localhost:3500"
-      },
-      {
-          name = "ReverseProxy__Clusters__webapi__Destinations__destination1__Address"
-          value = "http://localhost:3500"
-      },
-      {
-          name = "Redis__InstanceName"
-          value = var.redis.name
-      },
-      {
-          name = "Redis__ConnectionString"
-          secretRef = "redis-connection-string"
+          name = "Sql__ConnectionString"
+          secretRef = "sql-connection-string"
       }
     ]
     registry = {
-      server = var.gateway.registry.server
-      username = var.gateway.registry.username
+      server = var.webApi.registry.server
+      username = var.webApi.registry.username
       passwordSecretRef = "gh-registry-token"
     }
     scale = {
@@ -149,4 +121,25 @@ module "gateway" {
       ]
     }
   }
+}
+
+resource "azurerm_mssql_server" "app-server" {
+  name                                 = var.sqlDb.server-name
+  resource_group_name                  = var.resourceGroupName
+}
+
+resource "mssql_user" "web" {
+  server {
+    host = azurerm_mssql_server.app-server.fully_qualified_domain_name
+    login {
+      username     = var.sqlDb.admin.username
+      password     = var.sqlDbAdminPassword
+    }
+  }
+  
+  database  = azurerm_mssql_database.app-database.name
+  username  = var.webApi.name
+  object_id = module.webApi.container-app-principal-id
+
+  roles     = ["db_datareader", "db_datawriter"]
 }
