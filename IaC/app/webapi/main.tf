@@ -9,6 +9,10 @@ terraform {
     azapi = {
       source  = "azure/azapi"
     }
+    mssql = {
+      source  = "betr-io/mssql"
+      version = "0.2.4"
+    }
   }
   
   backend "azurerm" { }
@@ -20,6 +24,8 @@ provider "azurerm" {
 }
 
 provider "azapi" { }
+
+provider "mssql" { }
 
 locals {
   tags = {
