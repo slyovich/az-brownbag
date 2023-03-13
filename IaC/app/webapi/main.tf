@@ -129,14 +129,14 @@ module "webapi" {
   }
 }
 
-resource "azurerm_mssql_server" "app-server" {
+data "azurerm_mssql_server" "app-server" {
   name                                 = var.sqlDb.server-name
-  resource_group_name                  = var.resourceGroupName
+  resource_group_name                  = data.azurerm_resource_group.rg.name
 }
 
 resource "mssql_user" "web" {
   server {
-    host = azurerm_mssql_server.app-server.fully_qualified_domain_name
+    host = data.azurerm_mssql_server.app-server.fully_qualified_domain_name
     login {
       username     = var.sqlDb.admin.username
       password     = var.sqlDbAdminPassword
