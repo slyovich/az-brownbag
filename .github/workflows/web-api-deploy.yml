@@ -130,11 +130,9 @@ jobs:
         TF_VAR_imageTag: ${{ github.sha }}
 
     - name: Transform plan to json
-      if: github.event_name == 'pull_request'
       run: terraform show -json tfplan.out > tfplan.json
 
     - name: Checkov GitHub Action
-      if: github.event_name == 'pull_request'
       uses: bridgecrewio/checkov-action@v12
       with:
         file: ${{ env.working-directory }}/tfplan.json
@@ -254,7 +252,7 @@ jobs:
       run: terraform apply tfplan.out
 
   scale-keda-queue-in:
-    if: github.event_name != 'pull_request' && ${{ always() }}
+    if: github.event_name != 'pull_request' && (success() || failure())
     needs: [scale-keda-queue-out, deploy]
     runs-on: ubuntu-latest 
     steps:
