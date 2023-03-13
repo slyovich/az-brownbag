@@ -39,6 +39,8 @@ jobs:
       run: terraform --version
     - name: Display Azure-CLI Version
       run: az --version
+    - name: Display Docker Version
+      run: docker -v
     - name: Delay runner finish (2min)
       run: sleep 2m
     
