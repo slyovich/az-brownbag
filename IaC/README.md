@@ -59,15 +59,3 @@ You can use [infracost](https://www.infracost.io/docs) to estimate cloud cost re
 Execute the following command to apply your changes in your Azure environment.
 
     terraform apply "tfuat_plan.binary"
-
-## Automate with GitHub Actions
-GitHub Action for tfsec (https://aquasecurity.github.io/tfsec/v1.28.1/guides/github-actions/github-action/).
-
-Automate terraform with GitHub Actions (https://github.com/marketplace/actions/terraform-plan).
-
-Using variables in terraform step:
-
-     - name: Terraform Plan
-       env:
-        TF_VAR_env_account_ids: "[ XXXX,YYYY,ZZZZ ]"
-       run: terraform plan -out=plan

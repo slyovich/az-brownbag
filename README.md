@@ -120,13 +120,25 @@ Finally, you can deploy the self-hosted GitHub runner running the Terraform [scr
 As the Azure Container App hosting the GitHub Runner uses auto-scaling rules based on Azure Storage Queue storage, your pipelines running on this runner must trigger a new container start. The [GitHub action](.github/workflows/keda-scale-test.yml) illustrates how this can be achieved using a first scale out job and scale in when job is terminated.
 
 ## Deploy the application and its hosting infrastructure
-- Pipeline: Terraform (sql, redis, aca, front door) + code
-- Set ACA managed identity
-- Set SQL access to ACA managed identity (https://stackoverflow.com/questions/65544011/howto-add-db-owner-to-azure-sql-server-database-in-github-action / https://dev.to/maxx_don/configure-secret-less-connection-from-app-services-to-azure-sql-via-terraform-2jbg)
-- Grant access to Key Vault to ACA managed identity
-- Use KeyVault secrets to create ACA secrets. End of march, public preview (https://github.com/microsoft/azure-container-apps/issues/608)
+Now the landing zone is deployed and the self-hosted GitHub runner is configured, we can now manage to deploy our application and its specific infrastructure. This concerns the following services:
+* Commodity services:
+    * An Azure SQL Database to store application data.
+    * An Azure redis cache to store in-memory session data related to our proxy.
+* An Azure Container App for each service composing our application.
+* The Azure Front Door endpoint exposing publicly our application and routing the trafic to our backend proxy.
 
-One container for
-- BFF (with ingress)
-- WebApp
-- WebApi
+This deployment will be managed in two steps:
+1. First of all, we will deploy the commodity services, pre-provisioned through [code](Iac/app/) using Terraform. You can automate the deployment using the [GitHub Action](.github/workflows/app-storages.yml).
+2. Then, we can deploy each new version of our application services using GitHub Actions (example with the [backend API](.github/workflows/web-api-deploy.yml)) which execute a workflow illustrated with the following schema
+
+![ddf](Resources/Architecture-GitHub%20Actions.png)
+
+
+# Resources
+* Set SQL access to Azure Managed Identity
+    * https://stackoverflow.com/questions/65544011/howto-add-db-owner-to-azure-sql-server-database-in-github-action
+    * https://dev.to/maxx_don/configure-secret-less-connection-from-app-services-to-azure-sql-via-terraform-2jbg)
+* Automate terraform with GitHub Actions
+    * https://github.com/marketplace/actions/terraform-plan
+* Use KeyVault secrets to create ACA secrets
+    * https://github.com/microsoft/azure-container-apps/issues/608
