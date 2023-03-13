@@ -20,6 +20,8 @@ The following schema illustrates the communication flow between the frontend cli
 
 ![Request routing](Resources/Architecture-Request%20Routing.png)
 
+Note that, even if this architecture is supported with most of Identity Provider, the "on-behalf-of" pattern used here is unfortunately not supported with Azure Active Directory B2C. Indeed, as explains in the [Microsoft documentation](https://learn.microsoft.com/en-us/azure/active-directory-b2c/access-tokens), <i>Web API chains (On-Behalf-Of) is not supported by Azure AD B2C</i>.
+
 # Getting Started
 Follow the steps described in this section in order to setup your environment enabling you to start deploying the application and apply some changes in order to see your changes deployed automatically using GitHub Actions.
 
