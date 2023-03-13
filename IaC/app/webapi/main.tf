@@ -143,9 +143,9 @@ resource "mssql_user" "web" {
     }
   }
   
-  database  = azurerm_mssql_database.app-database.name
+  database  = var.sqlDb.name
   username  = var.webApi.name
-  object_id = module.webApi.container-app-principal-id
+  object_id = module.webapi.container-app-principal-id
 
   roles     = ["db_datareader", "db_datawriter"]
 }
