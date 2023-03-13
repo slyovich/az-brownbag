@@ -18,4 +18,4 @@ EXPOSE 80
 EXPOSE 443
 WORKDIR /usr/share/nginx/html
 COPY --from=publish /app/publish/wwwroot .
-COPY ACA.BlazorApp/nginx.conf /etc/nginx/nginx.conf
+COPY nginx.conf /etc/nginx/nginx.conf
