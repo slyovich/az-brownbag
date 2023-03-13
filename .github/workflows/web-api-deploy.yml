@@ -73,28 +73,9 @@ jobs:
       run: |
         docker push ghcr.io/${{ env.CONTAINER_IMAGE_REPOSITORY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
 
-  scale-keda-queue-out:
-    needs: build-and-publish
-    runs-on: ubuntu-latest 
-    steps:
-    - name: "Login via Azure CLI"
-      uses: azure/login@v1.4.5
-      with:
-        creds: ${{ secrets.AZURE_CREDENTIALS }}
-
-    - name: scale out self hosted
-      id: scaleJob
-      run: |
-        OUTPUT=$(az storage message put --queue-name "${{ env.AZ_QUEUE_NAME }}" --content "${{ github.run_id }}" --account-name "${{ env.AZ_STORAGE_ACCOUNT }}" --auth-mode login)
-        echo "::set-output name=scaleJobId::$(echo "$OUTPUT" | grep "id" | sed 's/^.*: //' | sed 's/,*$//g')"
-        echo "::set-output name=scaleJobPop::$(echo "$OUTPUT" | grep "popReceipt" | sed 's/^.*: //' | sed 's/,*$//g')"
-    outputs:
-      scaleJobId: ${{ steps.scaleJob.outputs.scaleJobId }}
-      scaleJobPop: ${{ steps.scaleJob.outputs.scaleJobPop }}
-
   check-infrastructure:
     if: github.event_name == 'pull_request'
-    needs: scale-keda-queue-out
+    needs: build-and-publish
     runs-on: ubuntu-latest 
     steps:
     - uses: actions/checkout@v3.0.2
@@ -187,6 +168,26 @@ jobs:
                                  --pull-request=${{github.event.pull_request.number}} \
                                  --behavior=update
   
+  scale-keda-queue-out:
+    if: github.event_name != 'pull_request'
+    needs: build-and-publish
+    runs-on: ubuntu-latest 
+    steps:
+    - name: "Login via Azure CLI"
+      uses: azure/login@v1.4.5
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: scale out self hosted
+      id: scaleJob
+      run: |
+        OUTPUT=$(az storage message put --queue-name "${{ env.AZ_QUEUE_NAME }}" --content "${{ github.run_id }}" --account-name "${{ env.AZ_STORAGE_ACCOUNT }}" --auth-mode login)
+        echo "::set-output name=scaleJobId::$(echo "$OUTPUT" | grep "id" | sed 's/^.*: //' | sed 's/,*$//g')"
+        echo "::set-output name=scaleJobPop::$(echo "$OUTPUT" | grep "popReceipt" | sed 's/^.*: //' | sed 's/,*$//g')"
+    outputs:
+      scaleJobId: ${{ steps.scaleJob.outputs.scaleJobId }}
+      scaleJobPop: ${{ steps.scaleJob.outputs.scaleJobPop }}
+
   deploy:
     if: github.event_name != 'pull_request'
     needs: scale-keda-queue-out
@@ -247,8 +248,8 @@ jobs:
       run: terraform apply tfplan.out
 
   scale-keda-queue-in:
-    if: ${{ always() }}
-    needs: [scale-keda-queue-out, check-infrastructure, deploy]
+    if: github.event_name != 'pull_request'
+    needs: [scale-keda-queue-out, deploy]
     runs-on: ubuntu-latest 
     steps:
     - name: "Login via Azure CLI"
