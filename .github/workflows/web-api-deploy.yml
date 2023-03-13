@@ -254,7 +254,7 @@ jobs:
       run: terraform apply tfplan.out
 
   scale-keda-queue-in:
-    if: github.event_name != 'pull_request'
+    if: github.event_name != 'pull_request' && ${{ always() }}
     needs: [scale-keda-queue-out, deploy]
     runs-on: ubuntu-latest 
     steps:
