@@ -18,7 +18,7 @@ resource "azurerm_dns_zone" "fd" {
 resource "azurerm_cdn_frontdoor_custom_domain" "fd" {
   count = var.custom-domain-name != null ? 1 : 0
 
-  name                     = "${replace(var.custom-domain-name, ".", "_")}"
+  name                     = "${replace(var.custom-domain-name, ".", "-")}"
   cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.fd.id
   dns_zone_id              = azurerm_dns_zone.fd[count.index].id
   host_name                = var.custom-domain-name
