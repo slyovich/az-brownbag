@@ -8,37 +8,24 @@ resource "azurerm_cdn_frontdoor_profile" "fd" {
   tags                     = var.tags
 }
 
+resource "azurerm_dns_zone" "fd" {
+  count = var.custom-domain-name != null ? 1 : 0
+
+  name                = var.custom-domain-name
+  resource_group_name = var.resourceGroupName
+}
+
 resource "azurerm_cdn_frontdoor_custom_domain" "fd" {
   count = var.custom-domain-name != null ? 1 : 0
 
   name                     = "${replace(var.custom-domain-name, ".", "_")}"
   cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.fd.id
+  dns_zone_id              = azurerm_dns_zone.fd.id
   host_name                = var.custom-domain-name
 
   tls {
     certificate_type    = "ManagedCertificate"
     minimum_tls_version = "TLS12"
-  }
-}
-
-resource "azurerm_cdn_frontdoor_origin_group" "fd" {
-  name                     = "${var.front-door-name}-origin-group"
-  cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.fd.id
-  session_affinity_enabled = false
-
-  restore_traffic_time_to_healed_or_new_endpoint_in_minutes = 10
-
-  health_probe {
-    interval_in_seconds = 60
-    path                = "/"
-    protocol            = "Https"
-    request_type        = "HEAD"
-  }
-
-  load_balancing {
-    additional_latency_in_milliseconds = 50
-    sample_size                        = 4
-    successful_samples_required        = 3
   }
 }
 
