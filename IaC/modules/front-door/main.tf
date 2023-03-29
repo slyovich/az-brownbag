@@ -29,6 +29,19 @@ resource "azurerm_cdn_frontdoor_custom_domain" "fd" {
   }
 }
 
+resource "azurerm_dns_txt_record" "fd" {
+  count = var.custom-domain-name != null ? 1 : 0
+
+  name                = "_dnsauth"
+  zone_name           = azurerm_dns_zone.fd[count.index].name
+  resource_group_name = var.resourceGroupName
+  ttl                 = 3600
+
+  record {
+    value = azurerm_cdn_frontdoor_custom_domain.fd.validation_token
+  }
+}
+
 resource "azurerm_cdn_frontdoor_origin_group" "fd" {
   name                     = "${var.front-door-name}-origin-group"
   cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.fd.id
