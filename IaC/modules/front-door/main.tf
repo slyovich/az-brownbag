@@ -38,7 +38,7 @@ resource "azurerm_dns_txt_record" "fd" {
   ttl                 = 3600
 
   record {
-    value = azurerm_cdn_frontdoor_custom_domain.fd.validation_token
+    value = azurerm_cdn_frontdoor_custom_domain.fd[count.index].validation_token
   }
 }
 
