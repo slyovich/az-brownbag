@@ -72,13 +72,3 @@ resource "azurerm_cdn_frontdoor_custom_domain_association" "fd_route" {
   cdn_frontdoor_custom_domain_id = data.azurerm_cdn_frontdoor_custom_domain.fd[count.index].id
   cdn_frontdoor_route_ids        = [azurerm_cdn_frontdoor_route.fd.id]
 }
-
-resource "azurerm_dns_cname_record" "fd" {
-  count = var.custom-domain-name != null ? 1 : 0
-  
-  name                = var.origin-name
-  zone_name           = var.custom-domain-name
-  resource_group_name = var.resourceGroupName
-  ttl                 = 300
-  record              = data.azurerm_cdn_frontdoor_endpoint.fd.host_name
-}
