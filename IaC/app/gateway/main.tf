@@ -53,7 +53,7 @@ data "azapi_resource" "containerapp_environment" {
 
 data "azurerm_private_link_service" "containerapp_privatelink" {
   name                = "pl${replace(var.containerAppEnvironment.name, "-", "")}"
-  resource_group_name = data.azurerm_resource_group.landing-zone.id
+  resource_group_name = data.azurerm_resource_group.landing-zone.name
 }
 
 module "gateway" {

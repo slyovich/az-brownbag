@@ -43,7 +43,6 @@ variable "githubRegistryToken" {
 variable "gatewayAppConfig" {
   type = object({
     client-id = string
-    client-secret = string
     authority = string
     scopes = string
     backend-api-scope = string
