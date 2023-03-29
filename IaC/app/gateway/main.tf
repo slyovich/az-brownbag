@@ -51,6 +51,11 @@ data "azapi_resource" "containerapp_environment" {
   response_export_values  = ["id"]
 }
 
+data "azurerm_private_link_service" "containerapp_privatelink" {
+  name                = "pl${replace(var.containerAppEnvironment.name, "-", "")}"
+  resource_group_name = data.azurerm_resource_group.landing-zone.id
+}
+
 module "gateway" {
   source = "../../modules/container-app"
 
@@ -149,4 +154,20 @@ module "gateway" {
       ]
     }
   }
+}
+
+module "front-door-route" {
+  source = "../../modules/front-door-route"
+
+  tags                           = local.tags
+  location                       = var.location
+  resourceGroupName              = data.azurerm_resource_group.landing-zone.name
+
+  front-door-name                = var.frontDoor.name
+  custom-domain-name             = var.frontDoor.custom-domain-name
+
+  private-link-id                = data.azurerm_private_link_service.containerapp_privatelink.id
+
+  origin-name                    = "gateway"
+  origin-host                    = module.gateway.container-app-fqdn
 }

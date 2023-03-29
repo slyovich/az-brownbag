@@ -83,3 +83,10 @@ variable "image" {
 variable "imageTag" {
   type = string
 }
+
+variable "frontDoor" {
+  type = object({
+    name               = string
+    custom-domain-name = string
+  })
+}
