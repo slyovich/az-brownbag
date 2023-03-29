@@ -66,9 +66,9 @@ resource "azurerm_cdn_frontdoor_route" "fd" {
   }
 }
 
-resource "azurerm_cdn_frontdoor_custom_domain_association" "fd_route" {
-  count = var.custom-domain-name != null ? 1 : 0
+# resource "azurerm_cdn_frontdoor_custom_domain_association" "fd_route" {
+#   count = var.custom-domain-name != null ? 1 : 0
 
-  cdn_frontdoor_custom_domain_id = data.azurerm_cdn_frontdoor_custom_domain.fd[count.index].id
-  cdn_frontdoor_route_ids        = [azurerm_cdn_frontdoor_route.fd.id]
-}
+#   cdn_frontdoor_custom_domain_id = data.azurerm_cdn_frontdoor_custom_domain.fd[count.index].id
+#   cdn_frontdoor_route_ids        = [azurerm_cdn_frontdoor_route.fd.id]
+# }
