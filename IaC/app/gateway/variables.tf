@@ -16,18 +16,6 @@ variable "landingZone" {
   })
 }
 
-variable "sqlDb" {
-  type = object({
-    name = string
-    server-name = string
-    dns-name = string
-    admin = object({
-        username = string
-        object-id = string
-    })
-  })
-}
-
 variable "redis" {
   type = object({
     name = string
@@ -60,6 +48,10 @@ variable "gatewayAppConfig" {
     scopes = string
     backend-api-scope = string
   })
+}
+
+variable "gatewayClientSecret" {
+  type = string
 }
 
 variable "gateway" {

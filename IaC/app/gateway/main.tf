@@ -89,7 +89,7 @@ module "gateway" {
       },
       {
           name = "client-secret"
-          value = var.gatewayAppConfig.client-secret
+          value = var.gatewayClientSecret
       },
       {
           name = "redis-connection-string"
