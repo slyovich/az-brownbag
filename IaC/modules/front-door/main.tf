@@ -20,7 +20,7 @@ resource "azurerm_cdn_frontdoor_custom_domain" "fd" {
 
   name                     = "${replace(var.custom-domain-name, ".", "_")}"
   cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.fd.id
-  dns_zone_id              = azurerm_dns_zone.fd.id
+  dns_zone_id              = azurerm_dns_zone.fd[count.index].id
   host_name                = var.custom-domain-name
 
   tls {
