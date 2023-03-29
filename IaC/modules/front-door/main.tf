@@ -27,7 +27,7 @@ resource "azurerm_cdn_frontdoor_custom_domain" "fd" {
     certificate_type    = "ManagedCertificate"
     minimum_tls_version = "TLS12"
   }
-}^
+}
 
 resource "azurerm_cdn_frontdoor_origin_group" "fd" {
   name                     = "${var.front-door-name}-origin-group"
