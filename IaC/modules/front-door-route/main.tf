@@ -51,7 +51,7 @@ resource "azurerm_cdn_frontdoor_route" "fd" {
   cdn_frontdoor_origin_ids      = [azurerm_cdn_frontdoor_origin.fd.id]
   enabled                       = true
 
-  cdn_frontdoor_custom_domain_ids = var.custom-domain-name != null ? [data.azurerm_cdn_frontdoor_custom_domain.fd.id] : null
+  cdn_frontdoor_custom_domain_ids = var.custom-domain-name != null ? [data.azurerm_cdn_frontdoor_custom_domain.fd[0].id] : null
   link_to_default_domain          = var.custom-domain-name != null ? false : true
 
   forwarding_protocol    = "HttpsOnly"
