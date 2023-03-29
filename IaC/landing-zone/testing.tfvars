@@ -82,4 +82,5 @@ containerAppEnvironment = {
 frontDoor = {
     name               = "fd-demo-brownbag-01"
     custom-domain-name = null
+    endpoint-name      = "www"
 }

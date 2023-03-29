@@ -29,6 +29,14 @@ resource "azurerm_cdn_frontdoor_custom_domain" "fd" {
   }
 }
 
+# An endpoint is a logical grouping of one or more routes that are associated with domain names
+resource "azurerm_cdn_frontdoor_endpoint" "fd" {
+  name                     = var.endpoint-name
+  cdn_frontdoor_profile_id = data.azurerm_cdn_frontdoor_profile.fd.id
+
+  tags                     = var.tags
+}
+
 # resource "azurerm_cdn_frontdoor_origin" "fd" {
 #   name                          = "${var.front-door-name}-origin"
 #   cdn_frontdoor_origin_group_id = azurerm_cdn_frontdoor_origin_group.fd.id
