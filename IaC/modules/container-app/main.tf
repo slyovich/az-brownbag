@@ -48,5 +48,6 @@ resource "azapi_resource" "aca" {
 
   tags = var.tags
   
+  response_export_values  = ["id", "properties.configuration.ingress.fqdn"]
   ignore_missing_property = true
 }
