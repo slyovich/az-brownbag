@@ -74,6 +74,5 @@ variable "frontDoor" {
   type = object({
     name               = string
     custom-domain-name = string
-    endpoint-name      = string
   })
 }

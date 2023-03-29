@@ -128,7 +128,6 @@ module "front-door" {
   resourceGroupName              = azurerm_resource_group.rg.name
   front-door-name                = var.frontDoor.name
   custom-domain-name             = var.frontDoor.custom-domain-name
-  endpoint-name                  = var.frontDoor.endpoint-name
   private-link-id                = data.azurerm_private_link_service.container-app-environment.id
   private-link-ip-address        = data.azurerm_private_link_service.container-app-environment.nat_ip_configuration[0].private_ip_address
 

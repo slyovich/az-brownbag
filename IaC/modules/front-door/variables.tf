@@ -19,10 +19,6 @@ variable "custom-domain-name" {
   default = null
 }
 
-variable "endpoint-name" {
-  type = string
-}
-
 variable "private-link-id" {
   type = string
 }
