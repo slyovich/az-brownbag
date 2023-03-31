@@ -72,7 +72,7 @@ jobs:
         TF_VAR_githubRunnerToken: ${{ secrets.RUNNER_PAT_TOKEN }}
         TF_VAR_githubRegistryToken: ${{ secrets.REGISTRY_PAT_TOKEN }}
         TF_VAR_storageName: ${{ vars.TF_VAR_githubRunnerQueueStorageName }}
-        TF_VAR_containerApp: ${{ vars.TF_VAR_containerApp }}
+        TF_VAR_containerApp: ${{ vars.TF_VAR_runnerContainerApp }}
 
     - name: Transform plan to json
       if: github.event_name == 'pull_request'
