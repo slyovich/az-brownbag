@@ -42,7 +42,7 @@ resource "azurerm_cdn_frontdoor_origin_group" "fd" {
 # Backend
 resource "azurerm_cdn_frontdoor_origin" "fd" {
   name                          = var.origin-name
-  cdn_frontdoor_origin_group_id = data.azurerm_cdn_frontdoor_origin_group.fd.id
+  cdn_frontdoor_origin_group_id = azurerm_cdn_frontdoor_origin_group.fd.id
   enabled                       = true
 
   certificate_name_check_enabled = true # Required for Private Link
@@ -64,7 +64,7 @@ resource "azurerm_cdn_frontdoor_origin" "fd" {
 resource "azurerm_cdn_frontdoor_route" "fd" {
   name                          = "${var.front-door-name}-route"
   cdn_frontdoor_endpoint_id     = data.azurerm_cdn_frontdoor_endpoint.fd.id
-  cdn_frontdoor_origin_group_id = data.azurerm_cdn_frontdoor_origin_group.fd.id
+  cdn_frontdoor_origin_group_id = azurerm_cdn_frontdoor_origin_group.fd.id
   cdn_frontdoor_origin_ids      = [azurerm_cdn_frontdoor_origin.fd.id]
   enabled                       = true
 
