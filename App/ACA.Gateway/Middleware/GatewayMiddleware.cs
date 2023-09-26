@@ -38,7 +38,15 @@ namespace ACA.Gateway.Middleware
             builder.Services.AddHttpClient<IDiscoveryProvider, DiscoveryProvider>();
 
             builder.Services.AddHttpClient<ITokenRefreshService, TokenRefreshService>();
-            builder.Services.AddHttpClient<ITokenExchangeService, AzureAdTokenExchangeService>();
+
+            if (gatewayConfig.AuthorityType == AuthorityType.AzureAD)
+            {
+                builder.Services.AddHttpClient<ITokenExchangeService, AzureAdTokenExchangeService>();
+            }
+            else if (gatewayConfig.AuthorityType == AuthorityType.AzureADB2C)
+            {
+                builder.Services.AddHttpClient<ITokenExchangeService, AzureAdB2CTokenExchangeService>();
+            }
 
             builder.Services.AddScoped<IHttpRequestService, HttpServiceService>();
             builder.Services.AddScoped<IGatewayService, GatewayService>();

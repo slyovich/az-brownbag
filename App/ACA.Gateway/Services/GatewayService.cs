@@ -28,21 +28,22 @@ namespace ACA.Gateway.Services
             }
 
             var token = _httpRequestService.GetSessionValue(SessionKeys.ACCESS_TOKEN);
+            var refreshToken = _httpRequestService.GetSessionValue(SessionKeys.REFRESH_TOKEN);
             var apiConfig = _httpRequestService.GetApiConfig();
 
             if (!string.IsNullOrEmpty(token) && apiConfig != null)
             {
-                var apiAccessToken = await GetApiAccessToken(token, apiConfig);
+                var apiAccessToken = await GetApiAccessToken(token, refreshToken, apiConfig);
                 _httpRequestService.AddHeader("Authorization", $"Bearer {apiAccessToken}");
             }
         }
 
-        private async Task<string> GetApiAccessToken(string token, ApiConfig? apiConfig)
+        private async Task<string> GetApiAccessToken(string token, string refreshToken, ApiConfig? apiConfig)
         {
             string? apiToken = null;
             if (!string.IsNullOrEmpty(apiConfig?.ApiScopes) || !string.IsNullOrEmpty(apiConfig?.ApiAudience))
             {
-                apiToken = await _apiTokenService.GetApiAccessToken(apiConfig, token);
+                apiToken = await _apiTokenService.GetApiAccessToken(apiConfig, token, refreshToken);
             }
 
             if (!string.IsNullOrEmpty(apiToken))

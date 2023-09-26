@@ -5,6 +5,6 @@ namespace ACA.Gateway.Services
 {
     public interface ITokenExchangeService
     {
-        Task<TokenExchangeResponse> GetApiToken(string accessToken, ApiConfig apiConfig);
+        Task<TokenExchangeResponse> GetApiToken(string accessToken, string refreshToken, ApiConfig apiConfig);
     }
 }

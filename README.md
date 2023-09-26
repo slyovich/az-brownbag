@@ -28,6 +28,8 @@ The following schema illustrates the communication flow between the frontend cli
 
 Note that, even if this architecture is supported with most of Identity Provider, the "on-behalf-of" pattern used here is unfortunately not supported with Azure Active Directory B2C. Indeed, as explains in the [Microsoft documentation](https://learn.microsoft.com/en-us/azure/active-directory-b2c/access-tokens), <i>Web API chains (On-Behalf-Of) is not supported by Azure AD B2C</i>.
 
+In this code sample, The refresh token is used to get an access token targeting the backend API. This is working fine except in scenario where you want to rely on app roles. This scenario is not supported by Azure AD B2C, as the app roles are not returned in the access token.
+
 # Azure Resource organisation
 Organizing effectively your Azure resources is part of the [ready stage](https://learn.microsoft.com/en-us/azure/cloud-adoption-framework/ready/azure-setup-guide/organize-resources) of the Cloud Adoption Framework. This helps to secure, manage, and track costs that are related to your workloads.
 

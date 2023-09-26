@@ -8,6 +8,7 @@ using System.Text;
 using Microsoft.IdentityModel.Logging;
 
 var builder = WebApplication.CreateBuilder(args);
+var environment = builder.Environment;
 
 if (builder.Environment.IsDevelopment())
 {
@@ -22,8 +23,22 @@ builder.Services
         {
             var configuration = builder.Configuration;
 
-            configureJwtBearerOptions.Authority = $"https://login.microsoftonline.com/{configuration["AzureAd:TenantId"]}/v2.0/";
-            configureJwtBearerOptions.Audience = $"api://{configuration["AzureAd:ClientId"]}";
+            var authority = string.Empty;
+            var metadataAddressSuffix = string.Empty;
+            if (configuration["AzureAd:Instance"].Contains("login.microsoftonline.com"))
+            {
+                authority = $"{configuration["AzureAd:Instance"]}/{configuration["AzureAd:TenantId"]}/v2.0/";
+            }
+            else if (configuration["AzureAd:Instance"].Contains(".b2clogin.com"))
+            {
+                authority = $"{configuration["AzureAd:Instance"]}/{configuration["AzureAd:Domain"]}/v2.0/";
+                metadataAddressSuffix = $"?p={configuration["SignUpSignInPolicyId"]}";
+            }
+
+            configureJwtBearerOptions.Authority = authority;
+            configureJwtBearerOptions.Audience = configuration["AzureAd:Audience"];
+            configureJwtBearerOptions.MetadataAddress = $"{authority}.well-known/openid-configuration{metadataAddressSuffix}";
+
             configureJwtBearerOptions.Events = new JwtBearerEvents
             {
                 OnAuthenticationFailed = async context =>
@@ -53,6 +68,7 @@ builder.Services
             configureMicrosoftIdentityOptions.Instance = configuration["AzureAd:Instance"];
             configureMicrosoftIdentityOptions.Domain = configuration["AzureAd:Domain"];
             configureMicrosoftIdentityOptions.CallbackPath = configuration["AzureAd:CallbackPath"];
+            configureMicrosoftIdentityOptions.SignUpSignInPolicyId = configuration["SignUpSignInPolicyId"];
         }
     );
 builder.Services.AddAuthorization();

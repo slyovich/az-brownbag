@@ -4,6 +4,7 @@
     {
         public int SessionTimeoutInMin { get; set; }
         public string Version { get; set; } = "";
+        public AuthorityType AuthorityType { get; set; } = AuthorityType.AzureAD;
         public string Authority { get; set; } = "";
         public string ClientId { get; set; } = "";
         public string ClientSecret { get; set; } = "";

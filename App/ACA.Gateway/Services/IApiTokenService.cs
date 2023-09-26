@@ -5,6 +5,6 @@ namespace ACA.Gateway.Services
     public interface IApiTokenService
     {
         void InvalidateApiAccessTokens();
-        Task<string> GetApiAccessToken(ApiConfig apiConfig, string token);
+        Task<string> GetApiAccessToken(ApiConfig apiConfig, string token, string refreshToken);
     }
 }

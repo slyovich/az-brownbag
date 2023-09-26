@@ -22,7 +22,7 @@ namespace ACA.Gateway.Services
             _httpRequestService.RemoveSessionValue(SessionKeys.API_ACCESS_TOKEN);
         }
 
-        public async Task<string> GetApiAccessToken(ApiConfig apiConfig, string token)
+        public async Task<string> GetApiAccessToken(ApiConfig apiConfig, string token, string refreshToken)
         {
             var apiToken = GetCachedApiToken(apiConfig);
             if (apiToken != null && !string.IsNullOrEmpty(apiToken.access_token))
@@ -30,7 +30,7 @@ namespace ACA.Gateway.Services
                 return apiToken.access_token;
             }
 
-            var tokenExchangeResponse = await _tokenExchangeService.GetApiToken(token, apiConfig);
+            var tokenExchangeResponse = await _tokenExchangeService.GetApiToken(token, refreshToken, apiConfig);
             SetCachedApiToken(apiConfig, tokenExchangeResponse);
 
             return tokenExchangeResponse.access_token;

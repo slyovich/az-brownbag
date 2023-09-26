@@ -3,13 +3,13 @@ using ACA.Gateway.Models;
 
 namespace ACA.Gateway.Services
 {
-    public class AzureAdTokenExchangeService : ITokenExchangeService
+    public class AzureAdB2CTokenExchangeService : ITokenExchangeService
     {
         private readonly HttpClient _httpClient;
         private readonly DiscoveryDocument _discoveryDocument;
         private readonly GatewayConfig _gatewayConfig;
 
-        public AzureAdTokenExchangeService(HttpClient httpClient, GatewayConfig gatewayConfig, DiscoveryDocument discoveryDocument)
+        public AzureAdB2CTokenExchangeService(HttpClient httpClient, GatewayConfig gatewayConfig, DiscoveryDocument discoveryDocument)
         {
             _discoveryDocument = discoveryDocument;
             _gatewayConfig = gatewayConfig;
@@ -23,18 +23,17 @@ namespace ACA.Gateway.Services
 
             var dict = new Dictionary<string, string>
             {
-                ["grant_type"] = "urn:ietf:params:oauth:grant-type:jwt-bearer",
+                ["grant_type"] = "refresh_token",
                 ["client_id"] = _gatewayConfig.ClientId,
                 ["client_secret"] = _gatewayConfig.ClientSecret,
-                ["assertion"] = accessToken,
                 ["scope"] = scope,
-                ["requested_token_use"] = "on_behalf_of"
+                ["refresh_token"] = refreshToken
             };
 
             var content = new FormUrlEncodedContent(dict);
             var request = new HttpRequestMessage(HttpMethod.Post, url) { Content = content };
             var httpResponse = await _httpClient.SendAsync(request);
-            
+
             var tokenExchangeResponse = await httpResponse.Content.ReadFromJsonAsync<TokenExchangeResponse>();
             if (tokenExchangeResponse == null)
             {

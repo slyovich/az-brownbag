@@ -9,6 +9,7 @@
                 SessionTimeoutInMin = configuration.GetValue("Gateway:SessionTimeoutInMin", 60),
                 Version = configuration.GetValue("Gateway:Version", "1.0.0"),
 
+                AuthorityType = configuration.GetValue<AuthorityType>("OpenIdConnect:AuthorityType"),
                 Authority = configuration.GetValue<string>("OpenIdConnect:Authority"),
                 ClientId = configuration.GetValue<string>("OpenIdConnect:ClientId"),
                 ClientSecret = configuration.GetValue<string>("OpenIdConnect:ClientSecret"),
